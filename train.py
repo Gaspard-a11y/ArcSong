@@ -10,29 +10,15 @@ from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
-## LOAD DATASET
+from dataset import get_fashion_mnist_dataset
 
-# Load the dataset
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+## DATASET
 
-x_train = x_train/255.
-x_test = x_test/255.
+train_dataset, test_dataset = get_fashion_mnist_dataset(one_hot=True, 
+                                                        batch_size=64, 
+                                                        shuffle=True, 
+                                                        buffer_size=1000)
 
-# Add channel axis
-x_train = x_train[..., np.newaxis]
-
-# Convert labels to one-hot
-y_test = tf.one_hot(indices=y_test, depth=10).numpy()
-y_train = tf.one_hot(indices=y_train, depth=10).numpy()
-
-## CREATE DATASET OBJECTS
-
-train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test))
-
-train_dataset = train_dataset.shuffle(1000)
-train_dataset = train_dataset.batch(64).prefetch(tf.data.experimental.AUTOTUNE)
-test_dataset = test_dataset.batch(64).prefetch(tf.data.experimental.AUTOTUNE)
 
 ## MODEL
 
@@ -53,9 +39,12 @@ def get_model(encoded_dim=2, classes_dim=10):
     model = Model(inputs=encoder.input, outputs=final_layer(encoder.output))
     return encoder, model
 
+
 encoder, model = get_model(encoded_dim=2, classes_dim=10)
 
+
 ## COMPILE AND FIT THE MODEL
+
 model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=5e-3))
 model.fit(train_dataset, epochs=10)
 
