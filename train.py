@@ -14,10 +14,10 @@ from dataset import get_fashion_mnist_dataset
 
 ## DATASET
 
-train_dataset, test_dataset = get_fashion_mnist_dataset(one_hot=True, 
-                                                        batch_size=64, 
-                                                        shuffle=True, 
-                                                        buffer_size=1000)
+(x_train, y_train), (x_test, y_test), train_dataset, test_dataset = get_fashion_mnist_dataset(one_hot=True,
+                                                                                            batch_size=64, 
+                                                                                            shuffle=True, 
+                                                                                            buffer_size=1000)
 
 
 ## MODEL

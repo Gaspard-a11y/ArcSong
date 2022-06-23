@@ -28,4 +28,4 @@ def get_fashion_mnist_dataset(one_hot=True, batch_size=64, shuffle=True, buffer_
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
     test_dataset = test_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
-    return train_dataset, test_dataset
+    return (x_train, y_train), (x_test, y_test), train_dataset, test_dataset
