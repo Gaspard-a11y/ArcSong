@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
-from dataset import get_fashion_mnist_dataset
+from modules.dataset import get_fashion_mnist_dataset
 
 ## DATASET
 
