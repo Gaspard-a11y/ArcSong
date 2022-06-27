@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def get_fashion_mnist_dataset(one_hot=True, batch_size=64, shuffle=True, buffer_size=1000):
+def get_fashion_mnist_data(one_hot=True):
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
 
     # Normalize images to [0, 1]
@@ -17,8 +17,12 @@ def get_fashion_mnist_dataset(one_hot=True, batch_size=64, shuffle=True, buffer_
         y_test = tf.one_hot(indices=y_test, depth=10).numpy()
         y_train = tf.one_hot(indices=y_train, depth=10).numpy()
 
-    ## CREATE DATASET OBJECTS
+    return (x_train, y_train), (x_test, y_test)
 
+def get_fashion_mnist_dataset(one_hot=True, batch_size=64, shuffle=True, buffer_size=1000):
+    (x_train, y_train), (x_test, y_test) = get_fashion_mnist_data(one_hot=one_hot)
+
+    ## CREATE DATASET OBJECTS
     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test))
 
@@ -28,4 +32,4 @@ def get_fashion_mnist_dataset(one_hot=True, batch_size=64, shuffle=True, buffer_
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
     test_dataset = test_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
-    return (x_train, y_train), (x_test, y_test), train_dataset, test_dataset
+    return train_dataset, test_dataset

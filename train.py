@@ -10,14 +10,14 @@ from tensorflow.keras.layers import Conv2D, MaxPool2D, Flatten, Dense
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
-from modules.dataset import get_fashion_mnist_dataset
+from modules.dataset import get_fashion_mnist_data, get_fashion_mnist_dataset
 
 ## DATASET
 
-(x_train, y_train), (x_test, y_test), train_dataset, test_dataset = get_fashion_mnist_dataset(one_hot=True,
-                                                                                            batch_size=64, 
-                                                                                            shuffle=True, 
-                                                                                            buffer_size=1000)
+train_dataset, test_dataset = get_fashion_mnist_dataset(one_hot=True,
+                                                        batch_size=64, 
+                                                        shuffle=True, 
+                                                        buffer_size=1000)
 
 
 ## MODEL
@@ -49,6 +49,8 @@ model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=5e-3
 model.fit(train_dataset, epochs=10)
 
 ## DISPLAY EMBEDDINGS
+
+(x_train, y_train), (x_test, y_test) = get_fashion_mnist_data(one_hot=True)
 
 class_names = np.array(['T-shirt/top', 'Trouser/pants', 'Pullover shirt', 'Dress',
                         'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag','Ankle boot'])
