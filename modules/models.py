@@ -7,8 +7,8 @@ from tensorflow.keras.layers import (
     Conv2D, 
     MaxPool2D
 )
-from tensorflow.keras.models import Sequential
 
+from tensorflow.keras.models import Sequential
 from tensorflow.keras.applications import ResNet50
 
 from .layers import (
@@ -43,7 +43,7 @@ def Backbone(backbone_type='Custom', use_pretrain=False):
 
 
 def OutputLayer(embd_shape, name='OutputLayer'):
-    """Output Later"""
+    """Output Layer"""
     def output_layer(x_in):
         x = inputs = Input(x_in.shape[1:])
         x = BatchNormalization()(x)
@@ -75,12 +75,12 @@ def NormHead(num_classes, name='NormHead'):
     return norm_head
 
 
-def ArcFaceModel(size=None, channels=3, num_classes=None, name='arcface_model',
+def ArcFaceModel(input_size=None, channels=3, num_classes=None, name='arcface_model',
                  margin=0.5, logist_scale=64, embd_shape=2,
-                 head_type='ArcHead', backbone_type='Custom',
+                 head_type='NormHead', backbone_type='Custom',
                  use_pretrain=False, training=True):
     """Arc Face Model"""
-    x = inputs = Input([size, size, channels], name='input_image')
+    x = inputs = Input([input_size, input_size, channels], name='input_image')
 
     x = Backbone(backbone_type=backbone_type, use_pretrain=use_pretrain)(x)
 
@@ -92,8 +92,10 @@ def ArcFaceModel(size=None, channels=3, num_classes=None, name='arcface_model',
         if head_type == 'ArcHead':
             logist = ArcHead(num_classes=num_classes, margin=margin,
                              logist_scale=logist_scale)(embds, labels)
-        else:
+        elif head_type == 'NormHead':
             logist = NormHead(num_classes=num_classes)(embds)
+        else:
+            raise TypeError('Invalid head_type')
         return Model((inputs, labels), logist, name=name)
     else:
         return Model(inputs, embds, name=name)
