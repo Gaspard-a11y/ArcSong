@@ -2,50 +2,53 @@ import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import (
     Dense,
-    Dropout,
     Flatten,
     Input,
+    Conv2D, 
+    MaxPool2D
 )
-from tensorflow.keras.applications import (
-    MobileNetV2,
-    ResNet50
-)
+from tensorflow.keras.models import Sequential
+
+from tensorflow.keras.applications import ResNet50
+
 from .layers import (
     BatchNormalization,
     ArcMarginPenaltyLogists
 )
 
 
-def _regularizer(weights_decay=5e-4):
-    return tf.keras.regularizers.l2(weights_decay)
-
-
-def Backbone(backbone_type='ResNet50', use_pretrain=True):
+def Backbone(backbone_type='Custom', use_pretrain=False):
     """Backbone Model"""
     weights = None
     if use_pretrain:
         weights = 'imagenet'
 
     def backbone(x_in):
+        # TODO delete me
         if backbone_type == 'ResNet50':
             return ResNet50(input_shape=x_in.shape[1:], include_top=False,
                             weights=weights)(x_in)
-        elif backbone_type == 'MobileNetV2':
-            return MobileNetV2(input_shape=x_in.shape[1:], include_top=False,
-                               weights=weights)(x_in)
+        elif backbone_type == 'Custom':
+            model = Sequential([
+                Conv2D(16, 5, activation='relu', input_shape=x_in.shape[1:]),
+                MaxPool2D(2),
+                Conv2D(8, 5, activation='relu'),
+                Flatten(),
+                Dense(64, activation=None)
+            ])
+            return model
         else:
-            raise TypeError('backbone_type error!')
+            raise TypeError('Invalid backbone_type')
     return backbone
 
 
-def OutputLayer(embd_shape, w_decay=5e-4, name='OutputLayer'):
+def OutputLayer(embd_shape, name='OutputLayer'):
     """Output Later"""
     def output_layer(x_in):
         x = inputs = Input(x_in.shape[1:])
         x = BatchNormalization()(x)
-        x = Dropout(rate=0.5)(x)
         x = Flatten()(x)
-        x = Dense(embd_shape, kernel_regularizer=_regularizer(w_decay))(x)
+        x = Dense(embd_shape)(x)
         x = BatchNormalization()(x)
         return Model(inputs, x, name=name)(x_in)
     return output_layer
@@ -63,25 +66,25 @@ def ArcHead(num_classes, margin=0.5, logist_scale=64, name='ArcHead'):
     return arc_head
 
 
-def NormHead(num_classes, w_decay=5e-4, name='NormHead'):
+def NormHead(num_classes, name='NormHead'):
     """Norm Head"""
     def norm_head(x_in):
         x = inputs = Input(x_in.shape[1:])
-        x = Dense(num_classes, kernel_regularizer=_regularizer(w_decay))(x)
+        x = Dense(num_classes)(x)
         return Model(inputs, x, name=name)(x_in)
     return norm_head
 
 
 def ArcFaceModel(size=None, channels=3, num_classes=None, name='arcface_model',
-                 margin=0.5, logist_scale=64, embd_shape=512,
-                 head_type='ArcHead', backbone_type='ResNet50',
-                 w_decay=5e-4, use_pretrain=True, training=False):
+                 margin=0.5, logist_scale=64, embd_shape=2,
+                 head_type='ArcHead', backbone_type='Custom',
+                 use_pretrain=False, training=True):
     """Arc Face Model"""
     x = inputs = Input([size, size, channels], name='input_image')
 
     x = Backbone(backbone_type=backbone_type, use_pretrain=use_pretrain)(x)
 
-    embds = OutputLayer(embd_shape, w_decay=w_decay)(x)
+    embds = OutputLayer(embd_shape)(x)
 
     if training:
         assert num_classes is not None
@@ -90,7 +93,7 @@ def ArcFaceModel(size=None, channels=3, num_classes=None, name='arcface_model',
             logist = ArcHead(num_classes=num_classes, margin=margin,
                              logist_scale=logist_scale)(embds, labels)
         else:
-            logist = NormHead(num_classes=num_classes, w_decay=w_decay)(embds)
+            logist = NormHead(num_classes=num_classes)(embds)
         return Model((inputs, labels), logist, name=name)
     else:
         return Model(inputs, embds, name=name)
