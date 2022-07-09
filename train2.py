@@ -4,20 +4,12 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint
 
+from modules.utils import load_json_dict
 from modules.models import ArcFaceModel
 from modules.losses import SoftmaxLoss
 
 
-# TODO Load json instead
-config = {
-    'epochs' : 10,
-    'learning_rate' : 5e-3,
-    'num_classes' : 10,
-    'embd_shape': 2,
-    'backbone_type' : 'Custom',
-    'head_type' : 'NormHead',
-    'ckpt_name': 'test_run'
-}
+config = load_json_dict("configs/test_run.json")
 
 
 model = ArcFaceModel(input_size=28,
@@ -75,4 +67,3 @@ model.fit(train_dataset,
 # TODO re-load the model, this time in test mode -> test.py
 # TODO examine the embeddings
 # TODO Re-do it all with Arcface head!
-# TODO Add config reading and fire .json

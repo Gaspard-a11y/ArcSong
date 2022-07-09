@@ -1,0 +1,9 @@
+{
+    "epochs" : 2,
+    "learning_rate" : 5e-3,
+    "num_classes" : 10,
+    "embd_shape": 2,
+    "backbone_type" : "Custom",
+    "head_type" : "NormHead",
+    "ckpt_name": "test_run"
+}
