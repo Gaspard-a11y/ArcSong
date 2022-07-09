@@ -63,7 +63,3 @@ model.fit(train_dataset,
             epochs=config['epochs'],
             callbacks=callbacks)
 
-
-# TODO re-load the model, this time in test mode -> test.py
-# TODO examine the embeddings
-# TODO Re-do it all with Arcface head!

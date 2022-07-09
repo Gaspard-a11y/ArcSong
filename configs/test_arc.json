@@ -5,6 +5,6 @@
     "num_classes" : 10,
     "embd_shape": 2,
     "backbone_type" : "Custom",
-    "head_type" : "NormHead",
-    "ckpt_name": "test_run"
+    "head_type" : "ArcHead",
+    "ckpt_name": "test_arc"
 }
