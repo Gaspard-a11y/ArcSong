@@ -12,7 +12,7 @@ from modules.losses import SoftmaxLoss
 config = load_json_dict("configs/test_run.json")
 
 
-model = ArcFaceModel(input_size=28,
+model = ArcFaceModel(input_size=config['input_size'],
                     channels=1, 
                     name='Backbone_test',
                     backbone_type=config['backbone_type'],
