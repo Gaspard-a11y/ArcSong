@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 from modules.models import ArcFaceModel
 from modules.losses import SoftmaxLoss
@@ -14,7 +15,8 @@ config = {
     'num_classes' : 10,
     'embd_shape': 2,
     'backbone_type' : 'Custom',
-    'head_type' : 'NormHead'
+    'head_type' : 'NormHead',
+    'ckpt_name': 'test_run'
 }
 
 
@@ -56,12 +58,20 @@ loss_fn = SoftmaxLoss()
 
 
 model.compile(optimizer=optimizer, loss=loss_fn)
+
+checkpoint_callback = ModelCheckpoint(
+    'checkpoints/' + config['ckpt_name'] + '/e_{epoch}.ckpt', 
+    save_freq='epoch', 
+    verbose=1, 
+    save_weights_only=True)
+
+callbacks = [checkpoint_callback]
+
 model.fit(train_dataset,
-            epochs=config['epochs'])
+            epochs=config['epochs'],
+            callbacks=callbacks)
 
 
-
-# TODO add ckpt saving
 # TODO re-load the model, this time in test mode -> test.py
 # TODO examine the embeddings
 # TODO Re-do it all with Arcface head!
