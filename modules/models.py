@@ -74,7 +74,7 @@ def NormHead(num_classes, name='NormHead'):
     return norm_head
 
 
-def ArcFaceModel(input_size=None, channels=1, num_classes=None, name='arcface_model',
+def ArcModel(input_size=None, channels=1, num_classes=None, name='arcface_model',
                  margin=0.5, logist_scale=64, embd_shape=2,
                  head_type='NormHead', backbone_type='Custom',
                  use_pretrain=False, training=True):
