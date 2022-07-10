@@ -10,8 +10,9 @@ from modules.models import ArcFaceModel
 from modules.losses import SoftmaxLoss
 
 
-def main(config = "configs/test_norm.json"):
+def main(config="configs/test_norm.json"):
 
+    print(f"Loading config {config}")
     config = load_json_dict(config)
 
     model = ArcFaceModel(input_size=config['input_size'],
