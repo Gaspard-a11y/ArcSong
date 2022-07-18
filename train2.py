@@ -40,9 +40,8 @@ def main(config="configs/test_norm.json", debug=False):
     shuffle=True
     buffer_size=1000
 
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+    (x_train, y_train), _ = tf.keras.datasets.fashion_mnist.load_data()
     x_train = x_train/255.
-    x_test = x_test/255.
 
     x_train = x_train[..., np.newaxis]
 

@@ -38,13 +38,13 @@ class ArcMarginPenaltyLogists(tf.keras.layers.Layer):
 
         cos_mt = tf.subtract(
             cos_t * self.cos_m, sin_t * self.sin_m, name='cos_mt')
-
-        cos_mt = tf.where(cos_t > self.th, cos_mt, cos_t - self.mm)
+        # = cos(theta+m)
 
         mask = tf.one_hot(tf.cast(labels, tf.int32), depth=self.num_classes,
                           name='one_hot_mask')
-
         logists = tf.where(mask == 1., cos_mt, cos_t)
+        # = cos(theta+m) on label index, cos(theta) elsewhere
+        
         logists = tf.multiply(logists, self.logist_scale, 'arcface_logist')
 
         return logists
