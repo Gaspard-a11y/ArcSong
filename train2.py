@@ -49,7 +49,7 @@ def main(config="configs/test_norm.json", debug=False):
     y_train = tf.expand_dims(y_train, axis=1)
 
     train_dataset = tf.data.Dataset.from_tensor_slices(((x_train, y_train), y_train))
-    train_dataset = train_dataset.shuffle(buffer_size)
+    # train_dataset = train_dataset.shuffle(buffer_size)
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
     learning_rate = tf.constant(config['learning_rate'])
