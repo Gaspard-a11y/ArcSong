@@ -9,7 +9,7 @@ def SoftmaxLoss():
         Compute soft_max loss of logit y_pred against label y_true.
         Warning: Logits must be unscaled as a softmax is performed internally.
 
-        :param y_true: unscaler logits
+        :param y_true: unscaled logits
         :param y_pred: shape [batch_size, num_classes] 
         :type y_pred: labels, shape [batch_size]
         :return: Categorical-Cross-Entropy-Loss(y_true, softmax(y_pred))

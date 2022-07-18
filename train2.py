@@ -1,6 +1,10 @@
+import os
+import shutil
+
 import fire
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -25,6 +29,12 @@ def main(config="configs/test_norm.json", debug=False):
                         training=True)
     model.summary(line_length=80)
 
+    ckpt_path = 'checkpoints/' + config['ckpt_name']
+    if os.path.isdir(ckpt_path):
+        # Previous checkpoints found, cleanup
+        # TODO allow training from a previous checkpoint
+        shutil.rmtree(ckpt_path)
+
     # TODO cleanup into modules/dataset.py
     batch_size=config['batch_size']
     shuffle=True
@@ -43,10 +53,6 @@ def main(config="configs/test_norm.json", debug=False):
     train_dataset = train_dataset.shuffle(buffer_size)
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
-    test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test))
-    test_dataset = test_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
-
-    dataset_length = len(x_train) # FIXME unclean as there's won't always be an x_train 
     learning_rate = tf.constant(config['learning_rate'])
     optimizer = Adam(learning_rate=learning_rate)
     loss_fn = SoftmaxLoss()
@@ -56,9 +62,9 @@ def main(config="configs/test_norm.json", debug=False):
         model.compile(optimizer=optimizer, loss=loss_fn)
 
         checkpoint_callback = ModelCheckpoint(
-            'checkpoints/' + config['ckpt_name'] + '/e_{epoch}.ckpt', 
+            ckpt_path + '/e_{epoch}.ckpt', 
             save_freq='epoch', 
-            verbose=1, 
+            verbose=1,
             save_weights_only=True)
 
         callbacks = [checkpoint_callback]
@@ -68,52 +74,25 @@ def main(config="configs/test_norm.json", debug=False):
                     callbacks=callbacks)
     else:
         # Manual loop
-        epoch, step = 1, 1
-        train_dataset = iter(train_dataset)
-
-        while epoch <= config['epochs']:
-            inputs, labels = next(train_dataset)
-
-            with tf.GradientTape() as tape:
-                logist = model(inputs, training=True)
-                reg_loss = tf.reduce_sum(model.losses)
-                pred_loss = loss_fn(labels, logist)
-                total_loss = pred_loss + reg_loss
-
-            grads = tape.gradient(total_loss, model.trainable_variables)
+        for epoch in range(config['epochs']):
+            print(f"====== Begin epoch {epoch} / {config['epochs']} ======")
             
-            # TODO delete this debug 
-            print(f"Step: {step}, Loss: {total_loss}")
-            
-            optimizer.apply_gradients(zip(grads, model.trainable_variables))
-
-#            if steps % 5 == 0:
-#                verb_str = "Epoch {}/{}: {}/{}, loss={:.2f}, lr={:.4f}"
-#                print(verb_str.format(epoch, cfg['epochs'],
-#                                      steps % steps_per_epoch,
-#                                      steps_per_epoch,
-#                                      total_loss.numpy(),
-#                                      learning_rate.numpy()))
-#
-#                with summary_writer.as_default():
-#                    tf.summary.scalar(
-#                        'loss/total loss', total_loss, step=steps)
-#                    tf.summary.scalar(
-#                        'loss/pred loss', pred_loss, step=steps)
-#                    tf.summary.scalar(
-#                        'loss/reg loss', reg_loss, step=steps)
-#                    tf.summary.scalar(
-#                        'learning rate', optimizer.lr, step=steps)
-#
-#            if steps % cfg['save_steps'] == 0:
-#                print('[*] save ckpt file!')
-#                model.save_weights('checkpoints/{}/e_{}_b_{}.ckpt'.format(
-#                    cfg['sub_name'], epoch, steps % steps_per_epoch))
-
-            step += 1
-            epoch = (step*batch_size)//dataset_length + 1
-
+            for step, (inputs, labels) in enumerate(train_dataset):
+                with tf.GradientTape() as tape:
+                    logist = model(inputs, training=True)
+                    loss = loss_fn(labels, logist)
+                
+                #TODO delete this debug
+                if step%10==0:
+                    print(f"Step: {step}, loss: {loss}")  
+                
+                grads = tape.gradient(loss, model.trainable_variables)
+                optimizer.apply_gradients(zip(grads, model.trainable_variables))
+                
+            print(f"End of epoch {epoch}, saving weights...")
+            model.save_weights(ckpt_path+f"/e_{epoch}.ckpt")
         
+        print("============ Training done! ============")
 
 
 if __name__=='__main__':
