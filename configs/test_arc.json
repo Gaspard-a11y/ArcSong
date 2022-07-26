@@ -1,7 +1,7 @@
 {
     "input_size": 28,
     "epochs" : 1,
-    "learning_rate" : 1e-4,
+    "learning_rate" : 5e-3,
     "batch_size":64,
     "num_classes" : 10,
     "embd_shape": 2,

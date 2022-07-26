@@ -14,7 +14,7 @@ from modules.models import ArcModel
 from modules.losses import SoftmaxLoss
 
 
-def main(config="configs/test_norm.json", debug=False):
+def main(config="configs/test_norm.json", debug=True):
 
     print(f"Loading config {config}")
     config = load_json_dict(config)

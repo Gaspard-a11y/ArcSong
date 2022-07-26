@@ -22,7 +22,7 @@ class ArcMarginPenaltyLogists(tf.keras.layers.Layer):
         self.logist_scale = logist_scale
 
     def build(self, input_shape):
-        self.w = self.add_variable(
+        self.w = self.add_weight(
             "weights", shape=[int(input_shape[-1]), self.num_classes])
         self.cos_m = tf.identity(math.cos(self.margin), name='cos_m')
         self.sin_m = tf.identity(math.sin(self.margin), name='sin_m')
@@ -39,6 +39,9 @@ class ArcMarginPenaltyLogists(tf.keras.layers.Layer):
         cos_mt = tf.subtract(
             cos_t * self.cos_m, sin_t * self.sin_m, name='cos_mt')
         # = cos(theta+m)
+
+        # Magic, they do this in other implementations but I can't understand why
+        cos_mt = tf.where(cos_t > self.th, cos_mt, cos_t - self.mm)
 
         mask = tf.one_hot(tf.cast(labels, tf.int32), depth=self.num_classes,
                           name='one_hot_mask')
