@@ -34,14 +34,16 @@ class ArcMarginPenaltyLogists(tf.keras.layers.Layer):
         normed_w = tf.nn.l2_normalize(self.w, axis=0, name='normed_weights')
 
         cos_t = tf.matmul(normed_embds, normed_w, name='cos_t')
+        # Necessary for stability
+        cos_t = tf.clip_by_value(cos_t, clip_value_min=-1, clip_value_max=1)
+
         sin_t = tf.sqrt(1. - cos_t ** 2, name='sin_t')
 
-        cos_mt = tf.subtract(
-            cos_t * self.cos_m, sin_t * self.sin_m, name='cos_mt')
         # = cos(theta+m)
+        cos_mt = tf.subtract(cos_t * self.cos_m, sin_t * self.sin_m, name='cos_mt')
 
         # Magic, they do this in other implementations but I can't understand why
-        cos_mt = tf.where(cos_t > self.th, cos_mt, cos_t - self.mm)
+        # cos_mt = tf.where(cos_t > self.th, cos_mt, cos_t - self.mm)
 
         mask = tf.one_hot(tf.cast(labels, tf.int32), depth=self.num_classes,
                           name='one_hot_mask')
