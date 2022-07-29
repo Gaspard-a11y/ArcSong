@@ -4,8 +4,8 @@
     "learning_rate" : 5e-3,
     "batch_size":64,
     "num_classes" : 10,
-    "embd_shape": 256,
-    "backbone_type" : "Custom",
+    "embd_shape": 2,
+    "backbone_type" : "Toy",
     "head_type" : "ArcHead",
     "ckpt_name": "test_arc"
 }

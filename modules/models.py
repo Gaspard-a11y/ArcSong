@@ -16,18 +16,14 @@ from .layers import (
 )
 
 
-def Backbone(backbone_type='Custom', use_pretrain=False):
+def Backbone(backbone_type='Toy', use_pretrain=False):
     """Backbone Model"""
     weights = None
     if use_pretrain:
         weights = 'imagenet'
 
     def backbone(x_in):
-        # TODO delete me
-        if backbone_type == 'ResNet50':
-            return ResNet50(input_shape=x_in.shape[1:], include_top=False,
-                            weights=weights)(x_in)
-        elif backbone_type == 'Custom':
+        if backbone_type == 'Toy':
             model = Sequential([
                 Conv2D(16, 5, activation='relu', input_shape=x_in.shape[1:]),
                 MaxPool2D(2),
@@ -76,7 +72,7 @@ def NormHead(num_classes, name='NormHead'):
 
 def ArcModel(input_size=None, channels=1, num_classes=None, name='arcface_model',
                  margin=0.5, logist_scale=64, embd_shape=2,
-                 head_type='NormHead', backbone_type='Custom',
+                 head_type='NormHead', backbone_type='Toy',
                  use_pretrain=False, training=True):
     """Arc Face Model"""
     x = inputs = Input([input_size, input_size, channels], name='input_image')
