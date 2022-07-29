@@ -1,10 +1,10 @@
 {
     "input_size": 28,
-    "epochs" : 1,
+    "epochs" : 10,
     "learning_rate" : 5e-3,
     "batch_size":64,
     "num_classes" : 10,
-    "embd_shape": 2,
+    "embd_shape": 256,
     "backbone_type" : "Custom",
     "head_type" : "NormHead",
     "ckpt_name": "test_norm"

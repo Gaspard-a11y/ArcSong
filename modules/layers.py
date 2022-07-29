@@ -15,19 +15,18 @@ class BatchNormalization(tf.keras.layers.BatchNormalization):
 
 class ArcMarginPenaltyLogists(tf.keras.layers.Layer):
     """ArcMarginPenaltyLogists"""
-    def __init__(self, num_classes, margin=0.5, logist_scale=64, **kwargs):
+    def __init__(self, num_classes, margin=0.5, logist_scale=64, epsilon=0.01, **kwargs):
         super(ArcMarginPenaltyLogists, self).__init__(**kwargs)
         self.num_classes = num_classes
         self.margin = margin
         self.logist_scale = logist_scale
+        self.epsilon = epsilon
 
     def build(self, input_shape):
         self.w = self.add_weight(
             "weights", shape=[int(input_shape[-1]), self.num_classes])
         self.cos_m = tf.identity(math.cos(self.margin), name='cos_m')
         self.sin_m = tf.identity(math.sin(self.margin), name='sin_m')
-        self.th = tf.identity(math.cos(math.pi - self.margin), name='th')
-        self.mm = tf.multiply(self.sin_m, self.margin, name='mm')
 
     def call(self, embds, labels):
         normed_embds = tf.nn.l2_normalize(embds, axis=1, name='normed_embd')
@@ -35,15 +34,13 @@ class ArcMarginPenaltyLogists(tf.keras.layers.Layer):
 
         cos_t = tf.matmul(normed_embds, normed_w, name='cos_t')
         # Necessary for stability
-        cos_t = tf.clip_by_value(cos_t, clip_value_min=-1, clip_value_max=1)
+        # cos_t = tf.clip_by_value(cos_t, clip_value_min=-1, clip_value_max=1)
+        cos_t = cos_t/(1.+self.epsilon)
 
         sin_t = tf.sqrt(1. - cos_t ** 2, name='sin_t')
 
         # = cos(theta+m)
         cos_mt = tf.subtract(cos_t * self.cos_m, sin_t * self.sin_m, name='cos_mt')
-
-        # Magic, they do this in other implementations but I can't understand why
-        # cos_mt = tf.where(cos_t > self.th, cos_mt, cos_t - self.mm)
 
         mask = tf.one_hot(tf.cast(labels, tf.int32), depth=self.num_classes,
                           name='one_hot_mask')

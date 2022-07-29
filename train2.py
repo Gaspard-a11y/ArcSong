@@ -82,7 +82,7 @@ def main(config="configs/test_norm.json", debug=True):
                     loss = loss_fn(labels, logist)
                 
                 #TODO delete this debug
-                if step%10==0:
+                if step%100==0:
                     print(f"Step: {step}, loss: {loss}")  
                 
                 grads = tape.gradient(loss, model.trainable_variables)
