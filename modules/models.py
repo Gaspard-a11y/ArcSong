@@ -8,7 +8,6 @@ from tensorflow.keras.layers import (
 )
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.applications import ResNet50
 
 from .layers import (
     BatchNormalization,

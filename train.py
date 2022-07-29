@@ -2,15 +2,14 @@ import os
 import shutil
 
 import fire
-import numpy as np
 import tensorflow as tf
-from tqdm import tqdm
 
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint
 
 from modules.utils import load_json_dict
 from modules.models import ArcModel
+from modules.dataset import get_fashion_mnist_train_dataset
 from modules.losses import SoftmaxLoss
 
 
@@ -35,23 +34,12 @@ def main(config="configs/test_norm.json", debug=True):
         # TODO allow training from a previous checkpoint
         shutil.rmtree(ckpt_path)
 
-    # TODO cleanup into modules/dataset.py
+    # Dataset
     batch_size=config['batch_size']
-    shuffle=True
-    buffer_size=1000
-
-    (x_train, y_train), _ = tf.keras.datasets.fashion_mnist.load_data()
-    x_train = x_train/255.
-
-    x_train = x_train[..., np.newaxis]
-
-    y_train = tf.convert_to_tensor(y_train, tf.float32)
-    y_train = tf.expand_dims(y_train, axis=1)
-
-    train_dataset = tf.data.Dataset.from_tensor_slices(((x_train, y_train), y_train))
-    # train_dataset = train_dataset.shuffle(buffer_size)
+    train_dataset = get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000)
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
+    # Optimization parameters
     learning_rate = tf.constant(config['learning_rate'])
     optimizer = Adam(learning_rate=learning_rate)
     loss_fn = SoftmaxLoss()
@@ -71,6 +59,7 @@ def main(config="configs/test_norm.json", debug=True):
         model.fit(train_dataset,
                     epochs=config['epochs'],
                     callbacks=callbacks)
+    
     else:
         # Manual loop
         for epoch in range(config['epochs']):
