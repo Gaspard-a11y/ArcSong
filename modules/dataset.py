@@ -17,4 +17,10 @@ def get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000):
     
     return train_dataset
 
-# TODO function to return test dataset
+
+def get_MSD_train_dataset(shuffle=True, buffer_size=1000):
+    # TODO write me
+    return
+
+
+# TODO functions to return test dataset

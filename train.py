@@ -8,11 +8,11 @@ from keras.callbacks import ModelCheckpoint
 
 from modules.utils import load_json_dict
 from modules.models import ArcModel
-from modules.dataset import get_fashion_mnist_train_dataset
+from modules.dataset import get_fashion_mnist_train_dataset, get_MSD_train_dataset
 from modules.losses import SoftmaxLoss
 
 
-def main(config="configs/test_norm.json", debug=True):
+def main(config=None, debug=True):
 
     print(f"Loading config {config}")
     config = load_json_dict(config)
@@ -33,10 +33,14 @@ def main(config="configs/test_norm.json", debug=True):
         # TODO allow training from a previous checkpoint
         shutil.rmtree(ckpt_path)
 
-    # TODO Select dataset based on config["data_dim"]
     # Dataset
     batch_size=config['batch_size']
-    train_dataset = get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000)
+    if config['data_dim']==2:
+        train_dataset = get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000)
+    elif config['data_dim']==1: 
+        train_dataset = get_MSD_train_dataset(shuffle=True, buffer_size=1000)
+    else:
+        raise TypeError('Only images (data_dim=2) and audio (data_dim=1) are supported')
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
     # Optimization parameters
@@ -54,6 +58,7 @@ def main(config="configs/test_norm.json", debug=True):
             verbose=1,
             save_weights_only=True)
 
+        # TODO add other callbacks?
         callbacks = [checkpoint_callback]
 
         model.fit(train_dataset,
