@@ -9,10 +9,16 @@ from tensorflow.keras.layers import (
 
 from tensorflow.keras.models import Sequential
 
+from keras.layers import (Conv1D, MaxPool1D, BatchNormalization,
+                          Dense, Dropout, Activation, Flatten, Reshape, Input)
+
+
 from .layers import (
     BatchNormalization,
     ArcMarginPenaltyLogists
 )
+
+from .samplecnn import SampleCNN
 
 
 def Backbone(backbone_type='Toy'):
@@ -28,6 +34,12 @@ def Backbone(backbone_type='Toy'):
                 Dense(256, activation='relu')
             ])
             return model(x_in)
+        elif backbone_type == 'SampleCNN':
+            return SampleCNN(n_outputs=256, 
+                            activation='relu', 
+                            kernel_initializer='he_uniform', 
+                            dropout_rate=0.5, 
+                            name='SampleCNN')(x_in)
         else:
             raise TypeError('Invalid backbone_type')
     return backbone
