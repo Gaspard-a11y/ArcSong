@@ -2,7 +2,7 @@ from keras import Model
 from keras.models import Sequential
 
 from keras.layers import (
-    Input, Dense, Flatten, Dropout, 
+    Input, Dense, Flatten, Dropout, Reshape,
     Activation, BatchNormalization, 
     Conv1D, Conv2D, MaxPool1D, MaxPool2D
 )
@@ -29,53 +29,54 @@ def Backbone(backbone_type='ImageCNN'):
             return model(x_in)
         elif backbone_type == 'SampleCNN':
             # From https://github.com/tae-jun/sample-cnn/blob/master/sample_cnn/model.py
-            model = Sequential([
-                Conv1D(128, 3, strides=3, padding='valid', kernel_initializer='he_uniform', input_shape=x_in.shape[1:]),
+            model = Sequential([# 59049 input
+                Reshape([-1, 1], input_shape=x_in.shape[1:]), # 59049 X 1
+                Conv1D(128, 3, strides=3, padding='valid', kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'), # 19683 X 128
                 Conv1D(128, 3, padding='same', kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 6561 X 128
+                MaxPool1D(pool_size=3), # 6561 X 128
                 Conv1D(128, 3, padding='same', kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 2187 X 128
+                MaxPool1D(pool_size=3), # 2187 X 128
                 Conv1D(256, 3, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 729 X 256
+                MaxPool1D(pool_size=3), # 729 X 256
                 Conv1D(256, 3, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 243 X 256
+                MaxPool1D(pool_size=3), # 243 X 256
                 Conv1D(256, 3, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 81 X 256
+                MaxPool1D(pool_size=3), # 81 X 256
                 Conv1D(256, 3, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 27 X 256
+                MaxPool1D(pool_size=3), # 27 X 256
                 Conv1D(256, 3, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 9 X 256
+                MaxPool1D(pool_size=3), # 9 X 256
                 Conv1D(256, 3, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 3 X 256
+                MaxPool1D(pool_size=3), # 3 X 256
                 Conv1D(512, 3, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
-                MaxPool1D(3), # 1 X 512
+                MaxPool1D(pool_size=3), # 1 X 512
                 Conv1D(512, 1, padding='same',
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
