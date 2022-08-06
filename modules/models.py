@@ -1,24 +1,18 @@
-from tensorflow.keras import Model
-from tensorflow.keras.layers import (
-    Dense,
-    Flatten,
-    Input,
-    Conv2D, 
-    MaxPool2D
-)
+from keras import Model
+from keras.layers import (Input, Dense, Flatten, Dropout, 
+                        Activation, BatchNormalization, 
+                        Conv1D, Conv2D, MaxPool1D, MaxPool2D)
 
-from tensorflow.keras.models import Sequential
+from keras.models import Sequential
 
 from keras.layers import (Conv1D, MaxPool1D, BatchNormalization,
-                          Dense, Dropout, Activation, Flatten, Reshape, Input)
+                          Dense, Dropout, Activation)
 
 
 from .layers import (
     BatchNormalization,
     ArcMarginPenaltyLogists
 )
-
-from .samplecnn import SampleCNN
 
 
 def Backbone(backbone_type='Toy'):
@@ -35,11 +29,63 @@ def Backbone(backbone_type='Toy'):
             ])
             return model(x_in)
         elif backbone_type == 'SampleCNN':
-            return SampleCNN(n_outputs=256, 
-                            activation='relu', 
-                            kernel_initializer='he_uniform', 
-                            dropout_rate=0.5, 
-                            name='SampleCNN')(x_in)
+            # From https://github.com/tae-jun/sample-cnn/blob/master/sample_cnn/model.py
+            model = Sequential([
+                Conv1D(128, 3, strides=3, padding='valid', kernel_initializer='he_uniform', input_shape=x_in.shape[1:]),
+                BatchNormalization(),
+                Activation('relu'), # 19683 X 128
+                Conv1D(128, 3, padding='same', kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 6561 X 128
+                Conv1D(128, 3, padding='same', kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 2187 X 128
+                Conv1D(256, 3, padding='same',
+                            kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 729 X 256
+                Conv1D(256, 3, padding='same',
+                            kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 243 X 256
+                Conv1D(256, 3, padding='same',
+                            kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 81 X 256
+                Conv1D(256, 3, padding='same',
+                            kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 27 X 256
+                Conv1D(256, 3, padding='same',
+                            kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 9 X 256
+                Conv1D(256, 3, padding='same',
+                            kernel_initializer='he_uniform')(x),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 3 X 256
+                Conv1D(512, 3, padding='same',
+                            kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'),
+                MaxPool1D(3), # 1 X 512
+                Conv1D(512, 1, padding='same',
+                            kernel_initializer='he_uniform'),
+                BatchNormalization(),
+                Activation('relu'), # 1 X 512
+                Dropout(dropout_rate=0.5),
+                Flatten(),
+                Dense(256, activation='sigmoid')
+            ])
+            return model(x_in)
         else:
             raise TypeError('Invalid backbone_type')
     return backbone
