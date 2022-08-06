@@ -14,10 +14,10 @@ from .layers import (
 )
 
 
-def Backbone(backbone_type='Toy'):
+def Backbone(backbone_type='ImageCNN'):
     """Backbone Model"""
     def backbone(x_in):
-        if backbone_type == 'Toy':
+        if backbone_type == 'ImageCNN':
             model=Sequential([
                 Conv2D(128, kernel_size=(5, 5), activation='relu', input_shape=x_in.shape[1:]),
                 MaxPool2D((2, 2)),
@@ -129,7 +129,7 @@ def ArcModel(input_size=None, data_dim=2, channels=1, num_classes=None, name='ar
                  training=True):
     """Arc Face Model"""
     if data_dim==2:
-        backbone_type='Toy'
+        backbone_type='ImageCNN'
         x = inputs = Input([input_size, input_size, channels], name='input_image')
     elif data_dim==1:
         backbone_type='SampleCNN'
