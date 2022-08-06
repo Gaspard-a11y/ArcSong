@@ -130,3 +130,9 @@ dmypy.json
 
 # Checkpoints
 checkpoints/
+
+# Test data
+msd/
+
+# SSH config into Imperial
+Hessian-Boden-access.txt
