@@ -3,9 +3,8 @@ import shutil
 
 import fire
 import tensorflow as tf
-
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import ModelCheckpoint
+from keras.optimizers import Adam
+from keras.callbacks import ModelCheckpoint
 
 from modules.utils import load_json_dict
 from modules.models import ArcModel

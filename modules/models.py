@@ -1,13 +1,12 @@
 from keras import Model
-from keras.layers import (Input, Dense, Flatten, Dropout, 
-                        Activation, BatchNormalization, 
-                        Conv1D, Conv2D, MaxPool1D, MaxPool2D)
-
 from keras.models import Sequential
 
-from keras.layers import (Conv1D, MaxPool1D, BatchNormalization,
-                          Dense, Dropout, Activation)
-
+from keras.layers import (
+    Input, Dense, Flatten, Dropout, 
+    Activation, BatchNormalization, 
+    Conv1D, Conv2D, MaxPool1D, MaxPool2D
+)
+                          
 
 from .layers import (
     BatchNormalization,

@@ -16,3 +16,5 @@ def get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000):
         train_dataset = train_dataset.shuffle(buffer_size)
     
     return train_dataset
+
+# TODO function to return test dataset
