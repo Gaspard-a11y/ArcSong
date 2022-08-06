@@ -68,7 +68,7 @@ def Backbone(backbone_type='Toy'):
                 Activation('relu'),
                 MaxPool1D(3), # 9 X 256
                 Conv1D(256, 3, padding='same',
-                            kernel_initializer='he_uniform')(x),
+                            kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'),
                 MaxPool1D(3), # 3 X 256
@@ -81,7 +81,7 @@ def Backbone(backbone_type='Toy'):
                             kernel_initializer='he_uniform'),
                 BatchNormalization(),
                 Activation('relu'), # 1 X 512
-                Dropout(dropout_rate=0.5),
+                Dropout(rate=0.5),
                 Flatten(),
                 Dense(256, activation='sigmoid')
             ])
@@ -124,13 +124,20 @@ def NormHead(num_classes, name='NormHead'):
     return norm_head
 
 
-def ArcModel(input_size=None, channels=1, num_classes=None, name='arcface_model',
+def ArcModel(input_size=None, data_dim=2, channels=1, num_classes=None, name='arcface_model',
                  margin=0.5, logist_scale=64, embd_shape=2,
-                 head_type='NormHead', backbone_type='Toy',
+                 head_type='NormHead',
                  training=True):
     """Arc Face Model"""
-    x = inputs = Input([input_size, input_size, channels], name='input_image')
-
+    if data_dim==2:
+        backbone_type='Toy'
+        x = inputs = Input([input_size, input_size, channels], name='input_image')
+    elif data_dim==1:
+        backbone_type='SampleCNN'
+        x = inputs = Input([input_size], name='input_song')
+    else:
+        raise TypeError('Only images (data_dim=2) and audio (data_dim=1) are supported')
+    
     x = Backbone(backbone_type=backbone_type)(x)
 
     embds = OutputLayer(embd_shape)(x)

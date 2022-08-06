@@ -19,9 +19,9 @@ def main(config="configs/test_norm.json", debug=True):
     config = load_json_dict(config)
 
     model = ArcModel(input_size=config['input_size'],
+                        data_dim=config['data_dim'],
                         channels=1, 
-                        name='Backbone_test',
-                        backbone_type=config['backbone_type'],
+                        name='ArcModel',
                         num_classes=config['num_classes'],
                         head_type=config['head_type'],
                         embd_shape=config['embd_shape'],
@@ -34,6 +34,7 @@ def main(config="configs/test_norm.json", debug=True):
         # TODO allow training from a previous checkpoint
         shutil.rmtree(ckpt_path)
 
+    # TODO Select dataset based on config["data_dim"]
     # Dataset
     batch_size=config['batch_size']
     train_dataset = get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000)
