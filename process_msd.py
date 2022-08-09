@@ -6,10 +6,10 @@ from tqdm import tqdm
 from modules.dataset import get_MSD_train_dataset
 
 def generate_trackid_list(local=True):
-    dataset = get_MSD_train_dataset(local=True)
+    dataset = get_MSD_train_dataset(local=local)
 
     track_ids = {}
-    
+
     for data_example in tqdm(dataset):
         track_id = data_example['tid'].numpy()[0].decode('UTF-8')
         try:
