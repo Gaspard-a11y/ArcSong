@@ -11,7 +11,11 @@ def generate_trackid_list(local=True):
     track_ids = {}
     
     for data_example in tqdm(dataset):
-        track_ids[data_example['tid'].numpy()[0].decode('UTF-8')] = 1
+        track_id = data_example['tid'].numpy()[0].decode('UTF-8')
+        try:
+            track_ids[track_id] += 1
+        except KeyError:
+            track_ids[track_id] = 1
         
     with open('msd/waveforms_track_ids.json', 'w') as fp:
         json.dump(track_ids, fp,  indent=4)
