@@ -24,7 +24,7 @@ def get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000):
 feature_description = {
     'audio': tf.io.VarLenFeature(tf.float32),
     'tags': tf.io.VarLenFeature(tf.string),
-    'tid': tf.io.VarLenFeature(tf.string),
+    'tid': tf.io.VarLenFeature(tf.string)
 }
 
 
@@ -37,28 +37,39 @@ def _waveform_parse_function(example_proto):
     
     return parsed_features
 
-
-def get_MSD_train_dataset(shuffle=True, buffer_size=1000, local=True):
-    # The sample rate used is 16kHz
+def get_MSD_path(local=True):
     if local==True:
         waveforms_path = Path("./msd")
     else:
         # Training on Imperial College's Boden server
         waveforms_path = Path("/srv/data/msd/tfrecords/waveform-complete")
+    return waveforms_path
+
+
+def get_MSD_train_dataset(shuffle=True, buffer_size=1000, local=True):
+    # The sample rate used is 16kHz
+    waveforms_path = get_MSD_path(local=local)
     
-    filenames = [f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
-    
+    filenames = [waveforms_path / f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
+
     dataset = tf.data.TFRecordDataset(filenames)
 
     dataset = dataset.map(_waveform_parse_function)
+    
+    # TODO processing to make sure the songs are the same length
+    # TODO handle the labels = convert tid into a unique artist number
+    # TODO filter out the mismatches
 
-    for data_example in dataset.take(1):
-        print(data_example['audio'])
-        print(data_example['tags'])
-        print(data_example['tid'])
-    # TODO finish
+    return dataset
 
-    return
 
+# TODO delete me
+# dataset = get_MSD_train_dataset(local=True)
+# 
+# for data_example in dataset.take(1):
+#     print(data_example['audio'])
+#     print(data_example['tags'])
+#     print(data_example['tid'])
+# End TODO
 
 # TODO functions to return test dataset
