@@ -10,7 +10,8 @@ def generate_trackid_json(local=True,
                         overwrite = False, 
                         out_path = 'msd/waveforms_track_ids.json'):
     
-    if os.path.isdir(out_path) and not overwrite:
+    if os.path.exists(out_path) and not overwrite:
+        print("/!\ /!\ /!\ Found a json file, cancelling process /!\ /!\ /!\ ")
         return
     
     else: 
