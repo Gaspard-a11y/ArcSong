@@ -5,6 +5,7 @@ import fire
 from tqdm import tqdm
 
 from modules.dataset import get_MSD_train_dataset
+from modules.utils import save_json
 
 # WARNING will break eventually, 
 # as get_MSD_train_dataset() will no longer return dicts  
@@ -29,8 +30,7 @@ def generate_trackid_json(local=True,
 
         list_of_track_ids = list(track_ids.keys())
 
-        with open(out_path, 'w') as fp:
-            json.dump(list_of_track_ids, fp,  indent=4)
+        save_json(file=list_of_track_ids, json_path=out_path)
         
         return
 

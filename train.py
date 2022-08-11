@@ -6,7 +6,7 @@ import tensorflow as tf
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 
-from modules.utils import load_json_dict
+from modules.utils import load_json
 from modules.models import ArcModel
 from modules.dataset import get_fashion_mnist_train_dataset, get_MSD_train_dataset
 from modules.losses import SoftmaxLoss
@@ -15,7 +15,7 @@ from modules.losses import SoftmaxLoss
 def main(config=None, debug=True):
 
     print(f"Loading config {config}")
-    config = load_json_dict(config)
+    config = load_json(config)
 
     model = ArcModel(input_size=config['input_size'],
                         data_dim=config['data_dim'],
