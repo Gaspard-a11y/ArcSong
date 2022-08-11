@@ -6,6 +6,9 @@ from tqdm import tqdm
 
 from modules.dataset import get_MSD_train_dataset
 
+
+# WARNING will break eventually, 
+# as get_MSD_train_dataset() will no longer return dicts  
 def generate_trackid_json(local=True, 
                         overwrite = False, 
                         out_path = 'msd/waveforms_track_ids.json'):
@@ -17,7 +20,8 @@ def generate_trackid_json(local=True,
     else: 
         dataset = get_MSD_train_dataset(local=local)
         track_ids = {}
-        
+
+        # TODO save list of ids instead
         for data_example in tqdm(dataset):
             track_id = data_example['tid'].numpy()[0].decode('UTF-8')
             try:
