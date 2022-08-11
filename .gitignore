@@ -131,11 +131,9 @@ dmypy.json
 # Checkpoints
 checkpoints/
 
-# Test data
-msd/
-
 # SSH config into Imperial
 Hessian-Boden-access.txt
 
 # Local testing files
-msd_summary_file.h5
+msd_data/msd_summary_file.h5
+msd_data/waveform_63.tfrecord
