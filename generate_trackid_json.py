@@ -21,16 +21,17 @@ def generate_trackid_json(local=True,
         dataset = get_MSD_train_dataset(local=local)
         track_ids = {}
 
-        # TODO save list of ids instead
         for data_example in tqdm(dataset):
             track_id = data_example['tid'].numpy()[0].decode('UTF-8')
             try:
                 track_ids[track_id] += 1
             except KeyError:
                 track_ids[track_id] = 1
-            
+
+        list_of_track_ids = list(track_ids.keys())
+
         with open(out_path, 'w') as fp:
-            json.dump(track_ids, fp,  indent=4)
+            json.dump(list_of_track_ids, fp,  indent=4)
         
         return
 
