@@ -4,14 +4,14 @@ import json
 import fire
 from tqdm import tqdm
 
-from modules.dataset import get_MSD_train_dataset
+from ..modules.dataset import get_MSD_train_dataset
 
 
 # WARNING will break eventually, 
 # as get_MSD_train_dataset() will no longer return dicts  
 def generate_trackid_json(local=True, 
                         overwrite = False, 
-                        out_path = 'msd/waveforms_track_ids.json'):
+                        out_path = '../msd_data/waveforms_track_ids.json'):
     
     if os.path.exists(out_path) and not overwrite:
         print("/!\ /!\ /!\ Found a json file, cancelling process /!\ /!\ /!\ ")
