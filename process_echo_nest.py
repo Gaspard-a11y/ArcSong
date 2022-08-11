@@ -37,7 +37,6 @@ def process_echo_nest(echo_nest_metadata = 'msd_data\Echo_Nest_track_ids.txt'):
             artistName_to_songCount[artist_name] += 1
         except KeyError:
             artistName_to_songCount[artist_name] = 1
-    # TODO cleanup the artist names?
 
 
     ### Build artist_list, dict[artist_name]=artist_number

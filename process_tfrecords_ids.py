@@ -12,7 +12,7 @@ def main(local=True,
         overwrite = False, 
         out_path = 'msd_data/waveforms_track_ids.json'):
     """
-    Process the raw MSD dataset to extract the track ids.
+    Process the tfrecords MSD dataset to extract the track ids.
     Save list as json to out_path. 
     """
     
