@@ -34,7 +34,7 @@ def _get_MSD_raw_dataset(local=True):
     :return: tf.data.TFRecordDataset object
     """
     if local==True:
-        waveforms_path = Path("./msd")
+        waveforms_path = Path("./msd_data")
     else:
         # Training on Imperial College's Boden server
         waveforms_path = Path("/srv/data/msd/tfrecords/waveform-complete")
