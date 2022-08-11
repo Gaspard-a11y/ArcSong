@@ -1,24 +1,28 @@
 import os
-import json
+from pathlib import Path
 
 import fire
 from tqdm import tqdm
 
-from modules.dataset import get_MSD_train_dataset
+from modules.dataset import _get_MSD_raw_dataset   
 from modules.utils import save_json
 
-# WARNING will break eventually, 
-# as get_MSD_train_dataset() will no longer return dicts  
-def generate_trackid_json(local=True, 
-                        overwrite = False, 
-                        out_path = 'msd_data/waveforms_track_ids.json'):
+
+def main(local=True, 
+        overwrite = False, 
+        out_path = 'msd_data/waveforms_track_ids.json'):
+    """
+    Process the raw MSD dataset to extract the track ids.
+    Save list as json to out_path. 
+    """
     
+    out_path = Path(out_path)
     if os.path.exists(out_path) and not overwrite:
         print("/!\ /!\ /!\ Found a json file, cancelling process /!\ /!\ /!\ ")
         return
     
     else: 
-        dataset = get_MSD_train_dataset(local=local)
+        dataset = _get_MSD_raw_dataset(local=local)
         track_ids = {}
 
         for data_example in tqdm(dataset):
@@ -36,4 +40,4 @@ def generate_trackid_json(local=True,
 
 
 if __name__=="__main__":
-    fire.Fire(generate_trackid_json)
+    fire.Fire(main)
