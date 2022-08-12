@@ -10,9 +10,9 @@ from modules.utils import load_json
 from modules.models import ArcModel
 
 
-def main(out_dir = "media", img = True):
+def main(out_dir="media", img=True):
     """
-    Load the two trained models and save a few plots.
+    Load the two trained models and save plots.
     """
 
     # Load test dataset
@@ -89,7 +89,7 @@ def main(out_dir = "media", img = True):
         out_path = Path(out_dir) / "mnist_encodings.png"
     else:
         out_path = Path(out_dir) / "mnist_encodings.pdf"
-    plt.savefig(out_path)
+    plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
     return
 
