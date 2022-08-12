@@ -137,3 +137,6 @@ Hessian-Boden-access.txt
 # Local testing files
 msd_data/msd_summary_file.h5
 msd_data/waveform_63.tfrecord
+
+# Notebook sandboxes
+*.ipynb
