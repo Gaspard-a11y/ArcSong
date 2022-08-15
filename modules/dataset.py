@@ -24,6 +24,7 @@ def get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000):
 
 ### MILLION SONG DATASET
 
+# Don't touch me anymore
 def _get_MSD_raw_dataset(local=True):
     """
     Process the folder containing the tfrecord files,
