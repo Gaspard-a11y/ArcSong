@@ -82,11 +82,13 @@ def plot_and_save_length_histogram(out_dir="media", img=True, local=True):
     return
 
 
-def main(out_dir="media", img=True, local=True, counts=True, lengths=True):
+def main(out_dir="media", img=True, local=True, counts=False, lengths=False):
     """
     Load the msd and msd metadata, plot *
     and save exploratory data analysis. 
     """
+    if (not counts) and (not lengths):
+        print("Use --counts False and/or --lengths False to overwrite.")
 
     if counts:
         # Plot log histogram of soung counts per artist
