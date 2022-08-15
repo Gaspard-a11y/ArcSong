@@ -11,16 +11,23 @@ from modules.dataset import _get_MSD_raw_dataset
         
 
 def main(out_dir="media", img=True, local=True, overwrite=False):
+    """
+    Load the msd and msd metadata, plot *
+    and save exploratory data analysis. 
+    """
 
     if not overwrite:
         return
 
     else:
+        # Plot log histogram of soung counts per artist
+        print("Plotting histogram of song counts per artists ...")
+
         available_track_ids = load_json(Path("msd_data/waveforms_track_ids.json"))
         trackId_to_artistName = load_json(Path("msd_data/track_id_to_artist_name.json"))
 
         artistName_to_songCount = {}
-        for id in available_track_ids:
+        for id in tqdm(available_track_ids):
             artist_name = trackId_to_artistName[id]
             try:
                 artistName_to_songCount[artist_name]+=1
@@ -34,8 +41,6 @@ def main(out_dir="media", img=True, local=True, overwrite=False):
         total_song_count = np.sum(counts)
         total_artist_count = len(counts)
 
-        print("Plotting histogram of song counts per artists ...")
-        # Plot log histogram of soung counts per artist
         plt.figure(figsize=(14,7))
         plt.hist(counts, bins = 50, color='midnightblue')
         plt.yscale('log')
@@ -52,11 +57,13 @@ def main(out_dir="media", img=True, local=True, overwrite=False):
             out_path = Path(out_dir) / "song_count_histogram.pdf"
         plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
+        
         # Plot song length distribution
+        print("Plotting histogram of song lengths ...")
+        
         msd_dataset = _get_MSD_raw_dataset(local=local)
         track_lengths = []
 
-        print("Plotting histogram of song lengths ...")
         for data_example in tqdm(msd_dataset):
             track_lengths.append(data_example['audio'].numpy().shape[0]/16000)
         plt.figure(figsize=(14,7))
