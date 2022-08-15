@@ -4,6 +4,8 @@ from pathlib import Path
 import tensorflow as tf
 import numpy as np
 
+from modules.utils import load_json
+
 
 ### FASHION MNIST DATASET
 
@@ -23,6 +25,42 @@ def get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000):
     return train_dataset
 
 ### MILLION SONG DATASET
+
+def build_lookup_table_from_dict(dico, name):
+    keys = list(dico.keys())
+    values = list(dico.values())
+    
+    if type(values[0]) == int:
+        default_value=tf.constant(-1)
+    elif type(values[0]) == str:
+        default_value=tf.constant('Unknown')
+    
+    table = tf.lookup.StaticHashTable(
+        initializer=tf.lookup.KeyValueTensorInitializer(
+            keys=tf.constant(keys),
+            values=tf.constant(values)),
+        default_value=default_value,
+        name=name)
+    return table
+
+
+def build_lookup_table_from_list(li, name):
+    keys = [k for k in range(len(li))]
+    values = li
+    
+    if type(values[0]) == int:
+        default_value=tf.constant(-1)
+    elif type(values[0]) == str:
+        default_value=tf.constant('Unknown')
+    
+    table = tf.lookup.StaticHashTable(
+        initializer=tf.lookup.KeyValueTensorInitializer(
+            keys=tf.constant(keys),
+            values=tf.constant(values)),
+        default_value=default_value,
+        name=name)
+    return table
+
 
 # Don't touch me anymore
 def _get_MSD_raw_dataset(local=True):
@@ -71,23 +109,41 @@ def get_MSD_train_dataset(input_size=59049, num_classes=10, shuffle=True, buffer
     :param buffer_size: int, buffer size for shuffling, 
     :return: tf.data.TFRecordDataset object
     """
-    # The sample rate used is 16kHz
-    dataset = _get_MSD_raw_dataset(local=local)
 
+    # Get the metadata lookup tables
+    trackID_to_artistName = load_json("msd_data/track_id_to_artist_name.json")
+    artistName_to_artistNumber = load_json("msd_data/artist_name_to_artist_number.json")
+    artistName_to_songCount = load_json("msd_data/artist_name_to_song_count.json")
+    artist_list = load_json("msd_data/artist_list.json")
+    
+    trackID_to_artistName_table = build_lookup_table_from_dict(trackID_to_artistName, "trackID_to_artistName")
+    artistName_to_artistNumber_table = build_lookup_table_from_dict(artistName_to_artistNumber, "artistName_to_artistNumber")
+    # artistName_to_songCount_table = build_lookup_table_from_dict(artistName_to_songCount, "artistName_to_songCount")
+    # artistNumber_to_artistsName_table = build_lookup_table_from_list(artist_list, "artist_list")
+
+    def extract_audio_and_label(item):
+        audio = item['audio']
+        tid = item['tid'][0]
+        artist_name = trackID_to_artistName_table.lookup(tid)
+        label = artistName_to_artistNumber_table.lookup(artist_name)
+        return audio, label
+
+    def filter_classes(num_classes=1000):
+        def fun(_, label):
+            return label < num_classes
+        return fun
+
+    def setup_dataset_for_training(audio, label):
+        return ((audio, label), label)
+    
+    dataset = _get_MSD_raw_dataset(local=True)
+    dataset = dataset.map(extract_audio_and_label)
+    dataset = dataset.filter(filter_classes(num_classes=1000))
+    dataset = dataset.map(setup_dataset_for_training)
+    
     # TODO processing to make sure the songs are the same length
-    # TODO handle the labels = convert tid into a unique artist number
-    # TODO filter out the mismatches
+    # TODO data augmentation
 
     return dataset
 
 
-# TODO delete me
-# dataset = get_MSD_train_dataset(local=True)
-# 
-# for data_example in dataset.take(1):
-#     print(data_example['audio'])
-#     print(data_example['tags'])
-#     print(data_example['tid'])
-# End TODO
-
-# TODO functions to return test dataset
