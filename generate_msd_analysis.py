@@ -10,7 +10,7 @@ from modules.utils import load_json
 from modules.dataset import _get_MSD_raw_dataset
         
 
-def main(out_dir="media", img=True, overwrite=False):
+def main(out_dir="media", img=True, local=True, overwrite=False):
 
     if not overwrite:
         return
@@ -53,7 +53,7 @@ def main(out_dir="media", img=True, overwrite=False):
         plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
         # Plot song length distribution
-        msd_dataset = _get_MSD_raw_dataset(local=True)
+        msd_dataset = _get_MSD_raw_dataset(local=local)
         track_lengths = []
 
         print("Plotting histogram of song lengths ...")
