@@ -1,3 +1,4 @@
+from calendar import c
 from pathlib import Path
 
 import fire
@@ -36,13 +37,13 @@ def main(out_dir="media", img=True, overwrite=False):
         print("Plotting histogram of song counts per artists ...")
         # Plot log histogram of soung counts per artist
         plt.figure(figsize=(14,7))
-        plt.hist(counts, bins = 50)
+        plt.hist(counts, bins = 50, color='midnightblue')
         plt.yscale('log')
         plt.title(f"Number of tracks per artist ({total_song_count} tracks, {total_artist_count} artists)")
         plt.xlabel("Number of tracks")
         plt.ylabel("Number of artists")
         plt.minorticks_on()
-        plt.grid(which='major', color='b', linestyle='-', alpha=0.2)
+        plt.grid(which='major', color='r', linestyle='-', alpha=0.3)
         plt.grid(which='minor', color='r', linestyle='--', alpha=0.2)
 
         if img:
@@ -59,9 +60,9 @@ def main(out_dir="media", img=True, overwrite=False):
         for data_example in tqdm(msd_dataset):
             track_lengths.append(data_example['audio'].numpy().shape[0]/16000)
         plt.figure(figsize=(14,7))
-        plt.hist(track_lengths, bins = 50)
-
-        plt.title("Tracks' lengths in the MSD subset")
+        plt.hist(track_lengths, bins = 50, color='midnightblue')
+        plt.yscale('log')
+        plt.title("Tracks' lengths in the dataset")
         plt.xlabel("Track length (s)")
         plt.ylabel("Number of songs")
         plt.minorticks_on()
