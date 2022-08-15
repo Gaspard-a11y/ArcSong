@@ -65,12 +65,13 @@ def plot_and_save_length_histogram(out_dir="media", img=True, local=True):
     plt.grid(which='minor', color='r', linestyle='--', alpha=0.2)
     
     if img:
-        out_path = Path(out_dir) / "songs_length_histogram.png"
+        out_path = Path(out_dir) / "song_length_histogram.png"
     else:
-        out_path = Path(out_dir) / "songs_length_histogram.pdf"
+        out_path = Path(out_dir) / "song_length_histogram.pdf"
     
     plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
     return
+
 
 def main(out_dir="media", img=True, local=True, counts=True, lengths=True):
     """
@@ -78,13 +79,15 @@ def main(out_dir="media", img=True, local=True, counts=True, lengths=True):
     and save exploratory data analysis. 
     """
 
-    # Plot log histogram of soung counts per artist
-    print("Plotting histogram of song counts per artists ...")
-    plot_and_save_count_histogram(out_dir=out_dir, img=img)
+    if counts:
+        # Plot log histogram of soung counts per artist
+        print("Plotting histogram of song counts per artists ...")
+        plot_and_save_count_histogram(out_dir=out_dir, img=img)
 
-    # Plot song length distribution
-    print("Plotting histogram of song lengths ...")
-    plot_and_save_length_histogram(out_dir=out_dir, img=img, local=local)
+    if lengths:
+        # Plot song length distribution
+        print("Plotting histogram of song lengths ...")
+        plot_and_save_length_histogram(out_dir=out_dir, img=img, local=local)
 
     return
 
