@@ -1,4 +1,3 @@
-from calendar import c
 from pathlib import Path
 
 import fire
@@ -50,10 +49,20 @@ def plot_and_save_count_histogram(out_dir="media", img=True):
 
 def plot_and_save_length_histogram(out_dir="media", img=True, local=True):
     msd_dataset = _get_MSD_raw_dataset(local=local)
-    track_lengths = []
 
+    # Build track_length -> sont count dict
+    track_lengths_dict = {}
     for data_example in tqdm(msd_dataset):
-        track_lengths.append(data_example['audio'].numpy().shape[0]/16000)
+        song_length = int(data_example['audio'].numpy().shape[0]/16000)
+        try:
+            track_lengths_dict[song_length] += 1
+        except KeyError:
+            track_lengths_dict[song_length] = 1
+
+    # Transform the dict into an array    
+    list_of_array = [song_length * np.ones(track_lengths_dict[song_length]) for song_length in track_lengths_dict]
+    track_lengths = np.concatenate(list_of_array)
+    
     plt.figure(figsize=(14,7))
     plt.hist(track_lengths, bins = 50, color='midnightblue')
     plt.yscale('log')
