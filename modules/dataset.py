@@ -99,7 +99,7 @@ def _get_MSD_raw_dataset(local=True):
     return dataset
 
 
-def get_MSD_train_dataset(input_size=59049, num_classes=10, shuffle=True, buffer_size=1000, local=True):
+def get_MSD_train_dataset(input_size=59049, num_classes=1000, shuffle=True, buffer_size=1000, local=True):
     """
     Build an MSD dataset for training ArcSong. 
     Complete with data augmentation.
@@ -115,7 +115,7 @@ def get_MSD_train_dataset(input_size=59049, num_classes=10, shuffle=True, buffer
     artistName_to_artistNumber = load_json("msd_data/artist_name_to_artist_number.json")
     artistName_to_songCount = load_json("msd_data/artist_name_to_song_count.json")
     artist_list = load_json("msd_data/artist_list.json")
-    
+
     trackID_to_artistName_table = build_lookup_table_from_dict(trackID_to_artistName, "trackID_to_artistName")
     artistName_to_artistNumber_table = build_lookup_table_from_dict(artistName_to_artistNumber, "artistName_to_artistNumber")
     # artistName_to_songCount_table = build_lookup_table_from_dict(artistName_to_songCount, "artistName_to_songCount")
@@ -136,10 +136,13 @@ def get_MSD_train_dataset(input_size=59049, num_classes=10, shuffle=True, buffer
     def setup_dataset_for_training(audio, label):
         return ((audio, label), label)
     
-    dataset = _get_MSD_raw_dataset(local=True)
+    dataset = _get_MSD_raw_dataset(local=local)
     dataset = dataset.map(extract_audio_and_label)
-    dataset = dataset.filter(filter_classes(num_classes=1000))
+    dataset = dataset.filter(filter_classes(num_classes=num_classes))
     dataset = dataset.map(setup_dataset_for_training)
+
+    if shuffle:
+        dataset.shuffle(buffer_size=buffer_size)
     
     # TODO processing to make sure the songs are the same length
     # TODO data augmentation
