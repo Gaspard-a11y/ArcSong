@@ -60,7 +60,7 @@ def _get_MSD_raw_dataset(local=True):
     return dataset
 
 
-def get_MSD_train_dataset(shuffle=True, buffer_size=1000, local=True):
+def get_MSD_train_dataset(input_size=59049, num_classes=10, shuffle=True, buffer_size=1000, local=True):
     """
     Build an MSD dataset for training ArcSong. 
     Complete with data augmentation.
