@@ -10,15 +10,14 @@ from modules.utils import save_json
 
 def main(local=True, 
         overwrite = False, 
-        out_path = 'msd_data/waveforms_track_ids.json'):
+        out_dir = 'msd_data'):
     """
     Process the tfrecords MSD dataset to extract the track ids.
     Save list as json to out_path. 
     """
-    
-    out_path = Path(out_path)
+    out_path = Path(out_dir) / "waveforms_track_ids.json"
     if os.path.exists(out_path) and not overwrite:
-        print("/!\ /!\ /!\ Found a json file, cancelling process /!\ /!\ /!\ ")
+        print("Use --overwrite True to overwrite existing output file.")
         return
     
     else: 
