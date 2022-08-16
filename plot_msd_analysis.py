@@ -51,7 +51,7 @@ def plot_and_save_length_histogram(out_dir="media", img=True, local=True):
     track_lengths_dict = load_json("data_tfrecord_x_echonest/track_lengths.json")
 
     # Transform the dict into an array    
-    list_of_array = [song_length * np.ones(track_lengths_dict[song_length]) for song_length in track_lengths_dict]
+    list_of_array = [int(song_length) * np.ones(track_lengths_dict[song_length]) for song_length in track_lengths_dict]
     track_lengths = np.concatenate(list_of_array)
     
     plt.figure(figsize=(14,7))
