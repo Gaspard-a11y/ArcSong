@@ -1,5 +1,6 @@
 import os
 import shutil
+from pathlib import Path
 
 import fire
 import tensorflow as tf
@@ -12,33 +13,40 @@ from modules.dataset import get_fashion_mnist_train_dataset, get_MSD_train_datas
 from modules.losses import SoftmaxLoss
 
 
-def main(network_config=None, dataset_config=None, debug=True):
+def main(network_config=None, dataset_config=None, from_scratch=False, debug=True):
 
     print("Loading configs ...")
     config = load_json(network_config)
     dataset_config = load_json(dataset_config)
 
-    # Load model
+    ### Load model
     model = ArcModel(config=config, training=True)
     model.summary(line_length=80)
 
-    ckpt_path = 'checkpoints/' + config['ckpt_name']
+    ckpt_path = Path('checkpoints/') / config['ckpt_name']
     if os.path.isdir(ckpt_path):
-        # Previous checkpoints found, cleanup
-        # TODO allow training from a previous checkpoint
-        shutil.rmtree(ckpt_path)
+        # Found a previous checkpoint
+        if from_scratch:
+            # Cleanup
+            shutil.rmtree(ckpt_path)
+        else:
+            # Load previous weigths
+            previous_weights = tf.train.latest_checkpoint(ckpt_path)
+            model.load_weights(previous_weights)
 
-    # Load dataset
+
+    ### Load dataset
     batch_size=config['batch_size']
     if config['data_dim']==2:
         train_dataset = get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000)
-    elif config['data_dim']==1: 
+    elif config['data_dim']==1:
         train_dataset = get_MSD_train_dataset(dataset_config)
     else:
         raise TypeError('Only images (data_dim=2) and audio (data_dim=1) are supported')
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
-    # Optimization parameters
+    ### Train
+
     learning_rate = tf.constant(config['learning_rate'])
     optimizer = Adam(learning_rate=learning_rate)
     loss_fn = SoftmaxLoss()
