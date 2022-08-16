@@ -46,16 +46,9 @@ def plot_and_save_count_histogram(out_dir="media", img=True, total_msd=False):
    
 
 def plot_and_save_length_histogram(out_dir="media", img=True, local=True):
-    msd_dataset = _get_MSD_raw_dataset(local=local)
 
-    # Build track_length -> song count dict
-    track_lengths_dict = {}
-    for data_example in tqdm(msd_dataset):
-        song_length = int(data_example['audio'].numpy().shape[0]/16000)
-        try:
-            track_lengths_dict[song_length] += 1
-        except KeyError:
-            track_lengths_dict[song_length] = 1
+    # Load track_length -> song count dict
+    track_lengths_dict = load_json("data_tfrecord/track_lengths.json")
 
     # Transform the dict into an array    
     list_of_array = [song_length * np.ones(track_lengths_dict[song_length]) for song_length in track_lengths_dict]
@@ -122,7 +115,6 @@ def main(out_dir="media", img=True, local=True, counts=True, lengths=False, tota
 
     if lengths:
         # Plot song length distribution
-        # Warnin very long (~1h) operation
         print("Plotting histogram of song lengths ...")
         plot_and_save_length_histogram(out_dir=out_dir, img=img, local=local)
 
