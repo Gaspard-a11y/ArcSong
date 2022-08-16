@@ -10,7 +10,7 @@ from modules.utils import load_json
 from modules.models import ArcModel
 
 
-def main(out_dir="media", img=True, config_norm="configs/test_norm.json", config_arc="configs/test_arc.json"):
+def main(out_dir="media", img=True, config_norm="configs/test_norm.json", config_arc="configs/test_arc.json", fig_name="mnist_encodings"):
     """
     Load the two trained models and save plotted embeddings.
     """
@@ -26,23 +26,8 @@ def main(out_dir="media", img=True, config_norm="configs/test_norm.json", config
 
     # Load models
     print("Loading models and weights...")
-    model_norm = ArcModel(input_size=config_norm['input_size'],
-                            data_dim=config_norm['data_dim'],
-                            channels=1, 
-                            name='mnist_norm',
-                            num_classes=config_norm['num_classes'],
-                            head_type=config_norm['head_type'],
-                            embd_shape=config_norm['embd_shape'],
-                            training=False)
-
-    model_arc = ArcModel(input_size=config_arc['input_size'],
-                            data_dim=config_arc['data_dim'],
-                            channels=1, 
-                            name='mnist_arc',
-                            num_classes=config_arc['num_classes'],
-                            head_type=config_arc['head_type'],
-                            embd_shape=config_arc['embd_shape'],
-                            training=False)
+    model_norm = ArcModel(config = config_norm, training=False)
+    model_arc = ArcModel(config= config_arc, training=False)
 
     # Load model weights
     ckpt_path_norm = tf.train.latest_checkpoint('./checkpoints/' + config_norm['ckpt_name'])
@@ -85,10 +70,11 @@ def main(out_dir="media", img=True, config_norm="configs/test_norm.json", config
     plt.title('Image encodings with Arc head')
     plt.legend()
 
+
     if img:
-        out_path = Path(out_dir) / "mnist_encodings.png"
+        out_path = Path(out_dir) / (fig_name+".png")
     else:
-        out_path = Path(out_dir) / "mnist_encodings.pdf"
+        out_path = Path(out_dir) / (fig_name+".pdf")
     plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
     return
