@@ -92,9 +92,9 @@ def plot_and_save_discography_length_histogram(out_dir="media", img=True, local=
     plt.grid(which='minor', color='r', linestyle='--', alpha=0.2)
     
     if img:
-        out_path = Path(out_dir) / "song_length_histogram.png"
+        out_path = Path(out_dir) / "discography_length_histogram.png"
     else:
-        out_path = Path(out_dir) / "song_length_histogram.pdf"
+        out_path = Path(out_dir) / "discography_length_histogram.pdf"
     
     plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
     return
