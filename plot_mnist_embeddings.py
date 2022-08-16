@@ -10,9 +10,9 @@ from modules.utils import load_json
 from modules.models import ArcModel
 
 
-def main(out_dir="media", img=True):
+def main(out_dir="media", img=True, config_norm="configs/test_norm.json", config_arc="configs/test_arc.json"):
     """
-    Load the two trained models and save plots.
+    Load the two trained models and save plotted embeddings.
     """
 
     # Load test dataset
@@ -20,8 +20,8 @@ def main(out_dir="media", img=True):
     x_test = x_test/255.
 
     # Load configs
-    config_norm = load_json("configs/test_norm.json")
-    config_arc = load_json("configs/test_arc.json")
+    config_norm = load_json(Path(config_norm))
+    config_arc = load_json(Path(config_arc))
 
 
     # Load models
