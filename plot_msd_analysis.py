@@ -48,7 +48,7 @@ def plot_and_save_count_histogram(out_dir="media", img=True, total_msd=False):
 def plot_and_save_length_histogram(out_dir="media", img=True, local=True):
 
     # Load track_length -> song count dict
-    track_lengths_dict = load_json("data_tfrecord/track_lengths.json")
+    track_lengths_dict = load_json("data_tfrecord_x_echonest/track_lengths.json")
 
     # Transform the dict into an array    
     list_of_array = [song_length * np.ones(track_lengths_dict[song_length]) for song_length in track_lengths_dict]
