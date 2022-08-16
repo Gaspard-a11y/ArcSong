@@ -17,14 +17,7 @@ def main(config=None, debug=True):
     print(f"Loading config {config}")
     config = load_json(config)
 
-    model = ArcModel(input_size=config['input_size'],
-                        data_dim=config['data_dim'],
-                        channels=1, 
-                        name='ArcModel',
-                        num_classes=config['num_classes'],
-                        head_type=config['head_type'],
-                        embd_shape=config['embd_shape'],
-                        training=True)
+    model = ArcModel(config=config, training=True)
     model.summary(line_length=80)
 
     ckpt_path = 'checkpoints/' + config['ckpt_name']

@@ -124,11 +124,31 @@ def NormHead(num_classes, name='NormHead'):
     return norm_head
 
 
-def ArcModel(input_size=None, data_dim=2, channels=1, num_classes=None, name='arcface_model',
-                 margin=0.5, logist_scale=64, embd_shape=2,
-                 head_type='NormHead',
-                 training=True):
-    """Arc Face Model"""
+def ArcModel(config=None,
+            input_size=None, 
+            data_dim=None, 
+            channels=None, 
+            num_classes=None, 
+            name=None,
+            margin=0.5, 
+            logist_scale=64, 
+            embd_shape=None,
+            head_type='NormHead',
+            training=True):
+
+    # Parse config
+    if config is not None:
+        input_size=config['input_size']
+        data_dim=config['data_dim']
+        channels=config['channels']
+        name=config['ckpt_name']
+        num_classes=config['num_classes']
+        head_type=config['head_type']
+        embd_shape=config['embd_shape']
+        margin = config['margin']
+        logist_scale = config['logist_scale']
+
+    # Arc Face Model
     if data_dim==2:
         backbone_type='ImageCNN'
         x = inputs = Input([input_size, input_size, channels], name='input_image')

@@ -1,11 +1,14 @@
 {
+    "ckpt_name": "test_arc",
     "input_size": 28,
     "data_dim": 2,
+    "channels": 1,
+    "num_classes" : 10,
+    "head_type" : "ArcHead",
+    "embd_shape": 2,
+    "margin":0.5, 
+    "logist_scale":64,
     "epochs" : 10,
     "learning_rate" : 5e-3,
-    "batch_size":64,
-    "num_classes" : 10,
-    "embd_shape": 2,
-    "head_type" : "ArcHead",
-    "ckpt_name": "test_arc"
+    "batch_size":64
 }
