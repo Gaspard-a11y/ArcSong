@@ -12,11 +12,13 @@ from modules.dataset import get_fashion_mnist_train_dataset, get_MSD_train_datas
 from modules.losses import SoftmaxLoss
 
 
-def main(config=None, debug=True):
+def main(network_config=None, dataset_config=None, debug=True):
 
-    print(f"Loading config {config}")
-    config = load_json(config)
+    print("Loading configs ...")
+    config = load_json(network_config)
+    dataset_config = load_json(dataset_config)
 
+    # Load model
     model = ArcModel(config=config, training=True)
     model.summary(line_length=80)
 
@@ -26,12 +28,12 @@ def main(config=None, debug=True):
         # TODO allow training from a previous checkpoint
         shutil.rmtree(ckpt_path)
 
-    # Dataset
+    # Load dataset
     batch_size=config['batch_size']
     if config['data_dim']==2:
         train_dataset = get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000)
     elif config['data_dim']==1: 
-        train_dataset = get_MSD_train_dataset(shuffle=True, buffer_size=1000)
+        train_dataset = get_MSD_train_dataset(dataset_config)
     else:
         raise TypeError('Only images (data_dim=2) and audio (data_dim=1) are supported')
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)

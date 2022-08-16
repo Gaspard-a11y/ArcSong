@@ -99,7 +99,7 @@ def _get_MSD_raw_dataset(local=True):
     return dataset
 
 
-def get_MSD_train_dataset(input_size=59049, num_classes=1000, shuffle=True, buffer_size=1000, order_by_count=True, local=True):
+def get_MSD_train_dataset(config=None):
     """
     Build an MSD dataset for training ArcSong. 
     Complete with data augmentation.
@@ -110,9 +110,17 @@ def get_MSD_train_dataset(input_size=59049, num_classes=1000, shuffle=True, buff
     :return: tf.data.TFRecordDataset object
     """
 
+    # Parse config
+    if config is not None:
+        input_size = config['input_size']
+        num_classes = config['num_classes']
+        buffer_size = config['buffer_size']
+        order_by_count = config['order_by_count']
+        local = config['local']
+
     # Get the metadata lookup tables
     trackID_to_artistName = load_json("data_echonest/track_id_to_artist_name.json")
-    if order_by_count:
+    if order_by_count==1:
         artistName_to_artistNumber = load_json("data_tfrecord_x_echonest/artist_name_to_artist_number_by_count.json")
     else:
         artistName_to_artistNumber = load_json("data_tfrecord_x_echonest/artist_name_to_artist_number_by_length.json")
@@ -139,19 +147,19 @@ def get_MSD_train_dataset(input_size=59049, num_classes=1000, shuffle=True, buff
     def setup_dataset_for_training(audio, label):
         return ((audio, label), label)
 
-    dataset = _get_MSD_raw_dataset(local=local)
+    dataset = _get_MSD_raw_dataset(local=(local==1))
     dataset = dataset.map(extract_audio_and_label)
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
-    if order_by_count:
+    # if order_by_count:
         # Crop the tracks to one segment
-        dataset = dataset.map(random_crop)
+        # dataset = dataset.map(random_crop)
     
     # TODO "else" = data augmentation
 
     dataset = dataset.map(setup_dataset_for_training)
 
-    if shuffle:
+    if buffer_size is not None:
         dataset.shuffle(buffer_size=buffer_size)
 
     return dataset
