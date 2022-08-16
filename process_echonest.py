@@ -7,9 +7,9 @@ import fire
 from modules.utils import save_json
 
 
-def process_echo_nest(echo_nest_metadata = 'echonest_data/Echo_Nest_metadata.txt'):
+def process_echo_nest(echo_nest_metadata = 'data_echonest/Echo_Nest_metadata.txt'):
     echo_nest_path=Path(echo_nest_metadata)
-    ### Load echonest_data/Echo_Nest_metadata.txt
+    ### Load data_echonest/Echo_Nest_metadata.txt
     f = open(echo_nest_path,'r', encoding="utf8")
     lines = f.readlines()
 
@@ -56,7 +56,7 @@ def process_echo_nest(echo_nest_metadata = 'echonest_data/Echo_Nest_metadata.txt
     return trackID_to_artistName, sorted_artistName_to_songCount, artist_list, artistName_to_artistNumber
 
 
-def main(overwrite = False, out_path = "echonest_data"):
+def main(overwrite = False, out_path = "data_echonest"):
     """
     Process the Echo_Nest_track_ids.txt file 
     from http://millionsongdataset.com/pages/getting-dataset/.

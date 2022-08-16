@@ -10,7 +10,7 @@ from modules.utils import save_json
 
 def main(local=True, 
         overwrite = False, 
-        out_dir = 'msd_data'):
+        out_dir = 'data_tfrecord'):
     """
     Process the tfrecords MSD dataset to extract the track ids.
     Save list as json to out_path. 

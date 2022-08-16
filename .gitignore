@@ -135,8 +135,8 @@ checkpoints/
 Hessian-Boden-access.txt
 
 # Local testing files
-msd_data/msd_summary_file.h5
-msd_data/waveform_63.tfrecord
+data_tfrecord/msd_summary_file.h5
+data_tfrecord/waveform_63.tfrecord
 
 # Notebook sandboxes
 *.ipynb
