@@ -7,14 +7,14 @@ import fire
 from modules.utils import save_json
 
 
-def process_echo_nest(echo_nest_metadata = 'msd_data\Echo_Nest_track_ids.txt'):
+def process_echo_nest(echo_nest_metadata = 'msd_data/Echo_Nest_track_ids.txt'):
     echo_nest_path=Path(echo_nest_metadata)
     ### Load msd_data\Echo_Nest_track_ids.txt
     f = open(echo_nest_path,'r', encoding="utf8")
     lines = f.readlines()
 
     def process_line(line):
-        track_id, song_id, artist_name, song_title = line.split('<SEP>')
+        track_id, _, artist_name, _ = line.split('<SEP>')
         return track_id, artist_name
 
 
@@ -65,6 +65,8 @@ def main(overwrite = False, out_path = "msd_data"):
     - dict[artist_name] = number_of_songs,
     - artist_list,
     - dict[artist_name] = artist_number.
+    These files are for the ENTIRE dataset (not the one we have access to with the tfrecords).
+    For our subset, see process_tfrecords_x_echonest.py.
     """
 
     out_path1 = Path(out_path) / "track_id_to_artist_name.json"
