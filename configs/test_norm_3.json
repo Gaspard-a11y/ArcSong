@@ -1,0 +1,14 @@
+{
+    "ckpt_name": "test_norm_2",
+    "input_size": 28,
+    "data_dim": 2,
+    "channels": 1,
+    "num_classes" : 10,
+    "head_type" : "NormHead",
+    "embd_shape": 2,
+    "margin":0.25,
+    "logist_scale":1,
+    "epochs" : 10,
+    "learning_rate" : 5e-3,
+    "batch_size":64
+}

@@ -17,7 +17,9 @@ def main(network_config=None, dataset_config=None, from_scratch=False, debug=Tru
 
     print("Loading configs ...")
     config = load_json(network_config)
-    dataset_config = load_json(dataset_config)
+    
+    if dataset_config is not None:
+        dataset_config = load_json(dataset_config)
 
     ### Load model
     model = ArcModel(config=config, training=True)
@@ -56,7 +58,7 @@ def main(network_config=None, dataset_config=None, from_scratch=False, debug=Tru
         model.compile(optimizer=optimizer, loss=loss_fn)
 
         checkpoint_callback = ModelCheckpoint(
-            ckpt_path + '/e_{epoch}.ckpt', 
+            ckpt_path / 'e_{epoch}.ckpt', 
             save_freq='epoch', 
             verbose=1,
             save_weights_only=True)
@@ -70,7 +72,7 @@ def main(network_config=None, dataset_config=None, from_scratch=False, debug=Tru
     
     else:
         # Manual loop
-        for epoch in range(config['epochs']):
+        for epoch in range(1, config['epochs']+1  ):
             print(f"====== Begin epoch {epoch} / {config['epochs']} ======")
             
             for step, (inputs, labels) in enumerate(train_dataset):
@@ -86,7 +88,7 @@ def main(network_config=None, dataset_config=None, from_scratch=False, debug=Tru
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
                 
             print(f"End of epoch {epoch}, saving weights...")
-            model.save_weights(ckpt_path+f"/e_{epoch}.ckpt")
+            model.save_weights(ckpt_path / f"e_{epoch}.ckpt")
         
         print("============ Training done! ============")
 
