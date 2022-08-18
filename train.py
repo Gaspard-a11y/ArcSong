@@ -4,8 +4,8 @@ from pathlib import Path
 
 import fire
 import tensorflow as tf
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint
 
 from modules.utils import load_json
 from modules.models import ArcModel

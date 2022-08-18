@@ -1,7 +1,7 @@
-from keras import Model
-from keras.models import Sequential
+from tensorflow.keras import Model
+from tensorflow.keras.models import Sequential
 
-from keras.layers import (
+from tensorflow.keras.layers import (
     Input, Dense, Flatten, Dropout, Reshape,
     Activation, BatchNormalization, 
     Conv1D, Conv2D, MaxPool1D, MaxPool2D
