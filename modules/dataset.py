@@ -100,7 +100,7 @@ def _get_MSD_raw_dataset(local=True):
     return dataset
 
 
-def _get_MSD_raw_train_dataset(local=True):
+def _get_MSD_raw_train_dataset(local=True, train_size=0.9):
     """
     Process the folder containing the tfrecord files,
     Return a tf.data.TFRecordDataset object.
@@ -131,7 +131,7 @@ def _get_MSD_raw_train_dataset(local=True):
 
     filenames = [waveforms_path / f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
 
-    stop = round(9*len(filenames)/10)
+    stop = round(train_size*len(filenames))
 
     dataset = tf.data.TFRecordDataset(filenames[:stop])
     
@@ -158,6 +158,7 @@ def get_MSD_train_dataset(config=None):
         buffer_size = config['buffer_size']
         order_by_count = config['order_by_count']
         local = config['local']
+        train_size = config["train_size"]
 
     # Get the metadata lookup tables
     trackID_to_artistName = load_json("data_echonest/track_id_to_artist_name.json")
@@ -191,7 +192,7 @@ def get_MSD_train_dataset(config=None):
         return ((audio, label), label)
 
     # TODO Split train-test
-    dataset = _get_MSD_raw_train_dataset(local=(local==1))
+    dataset = _get_MSD_raw_train_dataset(local=(local==1), train_size=train_size)
     dataset = dataset.map(extract_audio_and_label)
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
