@@ -26,42 +26,6 @@ def get_fashion_mnist_train_dataset(shuffle=True, buffer_size=1000):
 
 ### MILLION SONG DATASET
 
-def build_lookup_table_from_dict(dico, name):
-    keys = list(dico.keys())
-    values = list(dico.values())
-    
-    if type(values[0]) == int:
-        default_value=tf.constant(-1)
-    elif type(values[0]) == str:
-        default_value=tf.constant('Unknown')
-    
-    table = tf.lookup.StaticHashTable(
-        initializer=tf.lookup.KeyValueTensorInitializer(
-            keys=tf.constant(keys),
-            values=tf.constant(values)),
-        default_value=default_value,
-        name=name)
-    return table
-
-
-def build_lookup_table_from_list(li, name):
-    keys = [k for k in range(len(li))]
-    values = li
-    
-    if type(values[0]) == int:
-        default_value=tf.constant(-1)
-    elif type(values[0]) == str:
-        default_value=tf.constant('Unknown')
-    
-    table = tf.lookup.StaticHashTable(
-        initializer=tf.lookup.KeyValueTensorInitializer(
-            keys=tf.constant(keys),
-            values=tf.constant(values)),
-        default_value=default_value,
-        name=name)
-    return table
-
-
 # Don't touch me anymore, used elsewhere
 def _get_MSD_raw_dataset(local=True):
     """
@@ -100,7 +64,43 @@ def _get_MSD_raw_dataset(local=True):
     return dataset
 
 
-def _get_MSD_raw_train_dataset(local=True, train_size=0.9):
+def build_lookup_table_from_dict(dico, name):
+    keys = list(dico.keys())
+    values = list(dico.values())
+    
+    if type(values[0]) == int:
+        default_value=tf.constant(-1)
+    elif type(values[0]) == str:
+        default_value=tf.constant('Unknown')
+    
+    table = tf.lookup.StaticHashTable(
+        initializer=tf.lookup.KeyValueTensorInitializer(
+            keys=tf.constant(keys),
+            values=tf.constant(values)),
+        default_value=default_value,
+        name=name)
+    return table
+
+
+def build_lookup_table_from_list(li, name):
+    keys = [k for k in range(len(li))]
+    values = li
+    
+    if type(values[0]) == int:
+        default_value=tf.constant(-1)
+    elif type(values[0]) == str:
+        default_value=tf.constant('Unknown')
+    
+    table = tf.lookup.StaticHashTable(
+        initializer=tf.lookup.KeyValueTensorInitializer(
+            keys=tf.constant(keys),
+            values=tf.constant(values)),
+        default_value=default_value,
+        name=name)
+    return table
+
+
+def _get_MSD_raw_split_dataset(local=True, train_size=0.9):
     """
     Process the folder containing the tfrecord files,
     Return a tf.data.TFRecordDataset object.
@@ -133,11 +133,38 @@ def _get_MSD_raw_train_dataset(local=True, train_size=0.9):
 
     stop = round(train_size*len(filenames))
 
-    dataset = tf.data.TFRecordDataset(filenames[:stop])
-    
-    dataset = dataset.map(_waveform_parse_function)
-    
-    return dataset
+    train_dataset = tf.data.TFRecordDataset(filenames[:stop])
+    test_dataset = tf.data.TFRecordDataset(filenames[stop:])
+
+    train_dataset = train_dataset.map(_waveform_parse_function)
+    test_dataset = test_dataset.map(_waveform_parse_function)
+
+    return train_dataset, test_dataset
+
+## DATASET PROCESSING FUNCTIONS
+
+def extract_audio_and_label(lookup_name, lookup_number):
+    def fun(item):
+        audio = item['audio']
+        tid = item['tid'][0]
+        artist_name = lookup_name.lookup(tid)
+        label = lookup_number.lookup(artist_name)
+        return audio, label
+    return fun
+
+def filter_classes(num_classes=None):
+    def fun(_, label):
+        return label < num_classes
+    return fun
+
+def random_crop(size=None):
+    def fun(audio, label):
+        audio = tf.image.random_crop(audio, [size])
+        return audio, label
+    return fun
+
+def setup_dataset_for_training(audio, label):
+    return ((audio, label), label)
 
 
 def get_MSD_train_dataset(config=None):
@@ -170,30 +197,9 @@ def get_MSD_train_dataset(config=None):
     trackID_to_artistName_table = build_lookup_table_from_dict(trackID_to_artistName, "trackID_to_artistName")
     artistName_to_artistNumber_table = build_lookup_table_from_dict(artistName_to_artistNumber, "artistName_to_artistNumber")
 
-    def extract_audio_and_label(item):
-        audio = item['audio']
-        tid = item['tid'][0]
-        artist_name = trackID_to_artistName_table.lookup(tid)
-        label = artistName_to_artistNumber_table.lookup(artist_name)
-        return audio, label
-
-    def filter_classes(num_classes=None):
-        def fun(_, label):
-            return label < num_classes
-        return fun
-
-    def random_crop(size=None):
-        def fun(audio, label):
-            audio = tf.image.random_crop(audio, [size])
-            return audio, label
-        return fun
-
-    def setup_dataset_for_training(audio, label):
-        return ((audio, label), label)
-
-    # TODO Split train-test
-    dataset = _get_MSD_raw_train_dataset(local=(local==1), train_size=train_size)
-    dataset = dataset.map(extract_audio_and_label)
+    # Process dataset
+    dataset, _ = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
+    dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table))
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
     if order_by_count:
@@ -209,4 +215,47 @@ def get_MSD_train_dataset(config=None):
 
     return dataset
 
+
+def get_MSD_test_dataset(config=None, extra_classes=5):
+    """
+    Build an MSD dataset for training ArcSong. 
+    Complete with data augmentation.
+
+    :param local: running on local machine or on boden.ma.ic.ac.uk, 
+    :param shuffle: bool, whether to shuffle the dataset,
+    :param buffer_size: int, buffer size for shuffling, 
+    :return: tf.data.TFRecordDataset object
+    """
+
+    # Parse config
+    if config is not None:
+        input_size = config['input_size']
+        num_classes = config['num_classes']+extra_classes
+        buffer_size = config['buffer_size']
+        order_by_count = config['order_by_count']
+        local = config['local']
+        train_size = config["train_size"]
+
+    # Get the metadata lookup tables
+    trackID_to_artistName = load_json("data_echonest/track_id_to_artist_name.json")
+    if order_by_count==1:
+        artistName_to_artistNumber = load_json("data_tfrecord_x_echonest/artist_name_to_artist_number_by_count.json")
+    else:
+        artistName_to_artistNumber = load_json("data_tfrecord_x_echonest/artist_name_to_artist_number_by_length.json")
+
+    trackID_to_artistName_table = build_lookup_table_from_dict(trackID_to_artistName, "trackID_to_artistName")
+    artistName_to_artistNumber_table = build_lookup_table_from_dict(artistName_to_artistNumber, "artistName_to_artistNumber")
+
+    # Process dataset
+    _, dataset = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
+    dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table))
+    dataset = dataset.filter(filter_classes(num_classes=num_classes))
+    
+    if order_by_count:
+        dataset = dataset.map(random_crop(size=input_size))
+
+    if buffer_size is not None:
+        dataset = dataset.shuffle(buffer_size=buffer_size)
+
+    return dataset
 
