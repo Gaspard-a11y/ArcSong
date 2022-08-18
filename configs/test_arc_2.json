@@ -7,7 +7,7 @@
     "head_type" : "ArcHead",
     "embd_shape": 2,
     "margin":0.1, 
-    "logist_scale":1,
+    "logist_scale":64,
     "epochs" : 10,
     "learning_rate" : 5e-3,
     "batch_size":64
