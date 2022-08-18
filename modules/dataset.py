@@ -112,9 +112,11 @@ def _get_MSD_raw_split_dataset(local=True, train_size=0.9):
     """
     if local==True:
         waveforms_path = Path("./data_tfrecord")
+        filenames = [waveforms_path / f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
     else:
         # Training on Imperial College's Boden server
-        waveforms_path = Path("/srv/data/msd/tfrecords/waveform-complete")
+        waveforms_path = "/srv/data/msd/tfrecords/waveform-complete"
+        filenames = [waveforms_path +'/' + f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
     
     feature_description = {
         'audio': tf.io.VarLenFeature(tf.float32),
@@ -129,7 +131,6 @@ def _get_MSD_raw_split_dataset(local=True, train_size=0.9):
         parsed_features['tags'] = tf.sparse.to_dense(parsed_features['tags'])
         return parsed_features
 
-    filenames = [waveforms_path / f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
 
     stop = round(train_size*len(filenames))
 
