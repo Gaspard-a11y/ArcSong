@@ -13,13 +13,17 @@ from modules.dataset import get_fashion_mnist_train_dataset, get_MSD_train_datas
 from modules.losses import SoftmaxLoss
 
 
-def main(network_config=None, dataset_config=None, from_scratch=False, debug=True):
+def main(network_config=None, dataset_config=None, from_scratch=True, debug=True):
 
     print("Loading configs ...")
     config = load_json(network_config)
     
     if dataset_config is not None:
         dataset_config = load_json(dataset_config)
+
+    # Sanity check
+    assert config["input_size"] == dataset_config["input_size"], "Make sure input_size matches between configs"
+    assert config["num_classes"] == dataset_config["num_classes"], "Make sure num_classes matches between configs"
 
     ### Load model
     model = ArcModel(config=config, training=True)

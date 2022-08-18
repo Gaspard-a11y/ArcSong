@@ -1,0 +1,14 @@
+{
+    "ckpt_name": "test_msd",
+    "input_size": 59049,
+    "data_dim": 1,
+    "channels": 1,
+    "num_classes" : 10,
+    "head_type" : "ArcHead",
+    "embd_shape": 256,
+    "margin":0.5,
+    "logist_scale":64,
+    "epochs" : 1,
+    "learning_rate" : 5e-3,
+    "batch_size":64
+}

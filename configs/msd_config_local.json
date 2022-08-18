@@ -1,6 +1,6 @@
 {
     "input_size": 59049,
-    "num_classes": 100,
+    "num_classes": 10,
     "buffer_size": 1000,
     "order_by_count": 1,
     "local": 1,
