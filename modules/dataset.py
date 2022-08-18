@@ -135,32 +135,35 @@ def get_MSD_train_dataset(config=None):
         label = artistName_to_artistNumber_table.lookup(artist_name)
         return audio, label
 
-    def filter_classes(num_classes=1000):
+    def filter_classes(num_classes=None):
         def fun(_, label):
             return label < num_classes
         return fun
-    
-    def random_crop(audio, label):
-        # TODO
-        return
+
+    def random_crop(size=None):
+        def fun(audio, label):
+            audio = tf.image.random_crop(audio, [size])
+            return audio, label
+        return fun
 
     def setup_dataset_for_training(audio, label):
         return ((audio, label), label)
 
+    # TODO Split train-test
     dataset = _get_MSD_raw_dataset(local=(local==1))
     dataset = dataset.map(extract_audio_and_label)
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
-    # if order_by_count:
-        # Crop the tracks to one segment
-        # dataset = dataset.map(random_crop)
-    
-    # TODO "else" = data augmentation
+    if order_by_count:
+        dataset = dataset.map(random_crop(size=input_size))
+
+    # else:
+    # TODO : data augmentation
 
     dataset = dataset.map(setup_dataset_for_training)
 
     if buffer_size is not None:
-        dataset.shuffle(buffer_size=buffer_size)
+        dataset = dataset.shuffle(buffer_size=buffer_size)
 
     return dataset
 
