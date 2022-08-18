@@ -6,6 +6,14 @@ import numpy as np
 
 from modules.utils import load_json
 
+# Magic ?
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
+
 
 ### FASHION MNIST DATASET
 
