@@ -67,6 +67,7 @@ def _get_MSD_raw_dataset(local=True):
     """
     Process the folder containing the tfrecord files,
     Return a tf.data.TFRecordDataset object.
+    Returns the WHOLE dataset, should NOT be used for training.
 
     :param local: running on local machine or on boden.ma.ic.ac.uk, 
     :type local: bool, optional, defaults to True
@@ -93,6 +94,46 @@ def _get_MSD_raw_dataset(local=True):
 
     filenames = [waveforms_path / f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
     dataset = tf.data.TFRecordDataset(filenames)
+    
+    dataset = dataset.map(_waveform_parse_function)
+    
+    return dataset
+
+
+def _get_MSD_raw_train_dataset(local=True):
+    """
+    Process the folder containing the tfrecord files,
+    Return a tf.data.TFRecordDataset object.
+    Returns the TRAINING dataset.
+
+    :param local: running on local machine or on boden.ma.ic.ac.uk, 
+    :type local: bool, optional, defaults to True
+    :return: tf.data.TFRecordDataset object
+    """
+    if local==True:
+        waveforms_path = Path("./data_tfrecord")
+    else:
+        # Training on Imperial College's Boden server
+        waveforms_path = Path("/srv/data/msd/tfrecords/waveform-complete")
+    
+    feature_description = {
+        'audio': tf.io.VarLenFeature(tf.float32),
+        'tags': tf.io.VarLenFeature(tf.string),
+        'tid': tf.io.VarLenFeature(tf.string)
+    }
+
+    def _waveform_parse_function(example_proto):
+        parsed_features = tf.io.parse_single_example(example_proto, feature_description)
+        parsed_features['audio'] = tf.sparse.to_dense(parsed_features['audio'])
+        parsed_features['tid'] = tf.sparse.to_dense(parsed_features['tid'])
+        parsed_features['tags'] = tf.sparse.to_dense(parsed_features['tags'])
+        return parsed_features
+
+    filenames = [waveforms_path / f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
+
+    stop = round(9*len(filenames)/10)
+
+    dataset = tf.data.TFRecordDataset(filenames[:stop])
     
     dataset = dataset.map(_waveform_parse_function)
     
@@ -150,7 +191,7 @@ def get_MSD_train_dataset(config=None):
         return ((audio, label), label)
 
     # TODO Split train-test
-    dataset = _get_MSD_raw_dataset(local=(local==1))
+    dataset = _get_MSD_raw_train_dataset(local=(local==1))
     dataset = dataset.map(extract_audio_and_label)
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
