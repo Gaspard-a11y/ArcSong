@@ -62,7 +62,7 @@ def build_lookup_table_from_list(li, name):
     return table
 
 
-# Don't touch me anymore
+# Don't touch me anymore, used elsewhere
 def _get_MSD_raw_dataset(local=True):
     """
     Process the folder containing the tfrecord files,
