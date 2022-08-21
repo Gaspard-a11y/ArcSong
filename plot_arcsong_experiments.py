@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from tensorflow.keras import Model
 
-from modules.math import euclidean_distance, great_circle_distance
+from modules.math import euclidean_distance, spherical_distance
 from modules.dataset import get_MSD_test_dataset, get_MSD_train_dataset
 from modules.models import ArcModel
 from modules.utils import load_json
@@ -102,19 +102,19 @@ test_set_length = embds.shape[0]
 num_classes = class_vectors.shape[0]
 
 euclidean_distance_matrix = np.zeros((test_set_length, num_classes)) 
-great_circle_distance_matrix = np.zeros((test_set_length, num_classes)) 
+spherical_distance_matrix = np.zeros((test_set_length, num_classes)) 
 
 for i in range(test_set_length): # 15
     for j in range(num_classes): # 10
         euclidean_distance_matrix[i][j] = euclidean_distance(embds[i], class_vectors[j])
-        great_circle_distance_matrix[i][j] = great_circle_distance(embds[i], class_vectors[j])
+        spherical_distance_matrix[i][j] = spherical_distance(embds[i], class_vectors[j])
 
 y_pred_euclidean = np.argmax(euclidean_distance_matrix, axis=1)
-y_pred_great_circle = np.argmax(great_circle_distance_matrix, axis=1)
+y_pred_spherical = np.argmax(spherical_distance_matrix, axis=1)
 
 # Plot and save confusion matrices
 confusion_matrix_euclidean = get_confusion_matrix(y_pred_euclidean, y_test, num_classes=config["num_classes"])
-confusion_matrix_great_circle = get_confusion_matrix(y_pred_great_circle, y_test, num_classes=config["num_classes"])
+confusion_matrix_spherical = get_confusion_matrix(y_pred_spherical, y_test, num_classes=config["num_classes"])
 
 plt.figure(figsize=(16,14))
 sns.heatmap(confusion_matrix_euclidean, xticklabels=labels, yticklabels=labels)
@@ -126,8 +126,9 @@ plt.grid()
 out_path = Path(out_dir) / "arcsong_confusion_euclidean.png"
 plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
+
 plt.figure(figsize=(16,14))
-sns.heatmap(confusion_matrix_great_circle, xticklabels=labels, yticklabels=labels)
+sns.heatmap(confusion_matrix_spherical, xticklabels=labels, yticklabels=labels)
 plt.yticks(rotation=30) 
 plt.title("Predictions on the test set (spherical distance in the latent space)")
 plt.xticks(rotation=30)

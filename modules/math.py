@@ -8,7 +8,7 @@ def euclidean_distance(x,y):
     return np.sqrt(np.sum(np.power(x-y,2)))
 
 
-def great_circle_distance(x,y, epsilon=1e-5):
+def spherical_distance(x,y, epsilon=1e-5):
     """
     Return the great circle distance of the two vectors.
     """
