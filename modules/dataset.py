@@ -263,8 +263,5 @@ def get_MSD_test_dataset(config=None, extra_classes=5):
     if order_by_count:
         dataset = dataset.map(random_crop(size=input_size))
 
-    if buffer_size is not None:
-        dataset = dataset.shuffle(buffer_size=buffer_size)
-
     return dataset
 
