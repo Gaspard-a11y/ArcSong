@@ -6,6 +6,7 @@ import scipy as sp
 import seaborn as sns
 import matplotlib.pyplot as plt
 from tensorflow.keras import Model
+import fire
 
 from modules.math import euclidean_distance, spherical_distance
 from modules.dataset import get_MSD_test_dataset, get_MSD_train_dataset
@@ -30,111 +31,112 @@ def get_confusion_matrix(y_pred, y_test, num_classes):
     return C
 
 
-out_dir="media"
-### Load config
+def main(out_dir="media", network_config = "configs/test_msd.json", dataset_config = "configs/msd_config_local.json"):
+    ### Load config
+    config = load_json(network_config)
+    dataset_config = load_json(dataset_config)
 
-network_config = "configs/test_msd.json"
-dataset_config = "configs/msd_config_local.json"
+    # Get artist names
+    if dataset_config["order_by_count"]==1:
+        artist_names = load_json("data_tfrecord_x_echonest/artist_list_by_count.json") 
+    else :
+        artist_names = load_json("data_tfrecord_x_echonest/artist_list_by_length.json") 
 
-config = load_json(network_config)
-dataset_config = load_json(dataset_config)
+    ### Load test dataset
 
-# Get artist names
-if dataset_config["order_by_count"]==1:
-    artist_names = load_json("data_tfrecord_x_echonest/artist_list_by_count.json") 
-else :
-    artist_names = load_json("data_tfrecord_x_echonest/artist_list_by_length.json") 
+    # Replace with test set eventually
+    # dataset = get_MSD_test_dataset(dataset_config)
+    # Dummy dataset with 15 examples
+    x_test = np.random.normal(0,1, (15, 59049))
+    y_test = np.random.randint(7,10, (15))+1
 
-### Load test dataset
+    # Temporary fix
+    config["num_classes"] = 10
+    labels = artist_names[:config["num_classes"]]
 
-# Replace with test set eventually
-# dataset = get_MSD_test_dataset(dataset_config)
-# Dummy dataset with 15 examples
-x_test = np.random.normal(0,1, (15, 59049))
-y_test = np.random.randint(7,10, (15))+1
+    ### Classical supervised classification
 
-# Temporary fix
-config["num_classes"] = 10
-labels = artist_names[:config["num_classes"]]
+    # Load model
+    model = ArcModel(config=config, training=True)
+    ckpt_path = Path('checkpoints/') / config['ckpt_name']
+    previous_weights = tf.train.latest_checkpoint(ckpt_path)
+    model.load_weights(previous_weights)
 
-### Classical supervised classification
+    # Compute y_pred
+    unscaled_logits = model((x_test, y_test))
+    logits = sp.special.softmax(unscaled_logits, axis=1)
+    y_pred = np.argmax(logits, axis=1)+1
 
-# Load model
-model = ArcModel(config=config, training=True)
-ckpt_path = Path('checkpoints/') / config['ckpt_name']
-previous_weights = tf.train.latest_checkpoint(ckpt_path)
-model.load_weights(previous_weights)
+    # Plot and save confusion matrix
+    confusion_matrix = get_confusion_matrix(y_pred, y_test, num_classes=config["num_classes"])
+    
+    plt.figure(figsize=(16,14))
+    sns.heatmap(confusion_matrix, xticklabels=labels, yticklabels=labels)
+    plt.yticks(rotation=30) 
+    plt.title("Predictions on the test set (standard classification)")
+    plt.xticks(rotation=30)
+    plt.grid()
 
-# Compute y_pred
-unscaled_logits = model((x_test, y_test))
-logits = sp.special.softmax(unscaled_logits, axis=1)
-y_pred = np.argmax(logits, axis=1)+1
+    out_path = Path(out_dir) / "arcsong_confusion.png"
+    plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
-# Plot and save confusion matrix
-confusion_matrix = get_confusion_matrix(y_pred, y_test, num_classes=config["num_classes"])
- 
-plt.figure(figsize=(16,14))
-sns.heatmap(confusion_matrix, xticklabels=labels, yticklabels=labels)
-plt.yticks(rotation=30) 
-plt.title("Predictions on the test set (standard classification)")
-plt.xticks(rotation=30)
-plt.grid()
+    ### Classification using latent distances
 
-out_path = Path(out_dir) / "arcsong_confusion.png"
-plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
+    # Get class vectors
+    fc_matrix = model.layers[-1].weights[0]
+    class_vectors = fc_matrix.numpy().transpose()
 
-### Classification using latent distances
+    # Load model
+    model = ArcModel(config=config, training=False)
+    ckpt_path = Path('checkpoints/') / config['ckpt_name']
+    previous_weights = tf.train.latest_checkpoint(ckpt_path)
+    model.load_weights(previous_weights)
+    embds = model(x_test).numpy()
 
-# Get class vectors
-fc_matrix = model.layers[-1].weights[0]
-class_vectors = fc_matrix.numpy().transpose()
+    # Compute y_pred
+    # TODO Cleanup
+    test_set_length = embds.shape[0]
+    num_classes = class_vectors.shape[0]
 
-# Load model
-model = ArcModel(config=config, training=False)
-ckpt_path = Path('checkpoints/') / config['ckpt_name']
-previous_weights = tf.train.latest_checkpoint(ckpt_path)
-model.load_weights(previous_weights)
-embds = model(x_test).numpy()
+    euclidean_distance_matrix = np.zeros((test_set_length, num_classes)) 
+    spherical_distance_matrix = np.zeros((test_set_length, num_classes)) 
 
-# Compute y_pred
-# TODO Cleanup
-test_set_length = embds.shape[0]
-num_classes = class_vectors.shape[0]
+    for i in range(test_set_length): # 15
+        for j in range(num_classes): # 10
+            euclidean_distance_matrix[i][j] = euclidean_distance(embds[i], class_vectors[j])
+            spherical_distance_matrix[i][j] = spherical_distance(embds[i], class_vectors[j])
 
-euclidean_distance_matrix = np.zeros((test_set_length, num_classes)) 
-spherical_distance_matrix = np.zeros((test_set_length, num_classes)) 
+    y_pred_euclidean = np.argmax(euclidean_distance_matrix, axis=1)
+    y_pred_spherical = np.argmax(spherical_distance_matrix, axis=1)
 
-for i in range(test_set_length): # 15
-    for j in range(num_classes): # 10
-        euclidean_distance_matrix[i][j] = euclidean_distance(embds[i], class_vectors[j])
-        spherical_distance_matrix[i][j] = spherical_distance(embds[i], class_vectors[j])
+    # Plot and save confusion matrices
+    confusion_matrix_euclidean = get_confusion_matrix(y_pred_euclidean, y_test, num_classes=config["num_classes"])
+    confusion_matrix_spherical = get_confusion_matrix(y_pred_spherical, y_test, num_classes=config["num_classes"])
 
-y_pred_euclidean = np.argmax(euclidean_distance_matrix, axis=1)
-y_pred_spherical = np.argmax(spherical_distance_matrix, axis=1)
+    plt.figure(figsize=(16,14))
+    sns.heatmap(confusion_matrix_euclidean, xticklabels=labels, yticklabels=labels)
+    plt.yticks(rotation=30) 
+    plt.title("Predictions on the test set (euclidean distance in the latent space)")
+    plt.xticks(rotation=30)
+    plt.grid()
 
-# Plot and save confusion matrices
-confusion_matrix_euclidean = get_confusion_matrix(y_pred_euclidean, y_test, num_classes=config["num_classes"])
-confusion_matrix_spherical = get_confusion_matrix(y_pred_spherical, y_test, num_classes=config["num_classes"])
-
-plt.figure(figsize=(16,14))
-sns.heatmap(confusion_matrix_euclidean, xticklabels=labels, yticklabels=labels)
-plt.yticks(rotation=30) 
-plt.title("Predictions on the test set (euclidean distance in the latent space)")
-plt.xticks(rotation=30)
-plt.grid()
-
-out_path = Path(out_dir) / "arcsong_confusion_euclidean.png"
-plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
+    out_path = Path(out_dir) / "arcsong_confusion_euclidean.png"
+    plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
 
-plt.figure(figsize=(16,14))
-sns.heatmap(confusion_matrix_spherical, xticklabels=labels, yticklabels=labels)
-plt.yticks(rotation=30) 
-plt.title("Predictions on the test set (spherical distance in the latent space)")
-plt.xticks(rotation=30)
-plt.grid()
+    plt.figure(figsize=(16,14))
+    sns.heatmap(confusion_matrix_spherical, xticklabels=labels, yticklabels=labels)
+    plt.yticks(rotation=30) 
+    plt.title("Predictions on the test set (spherical distance in the latent space)")
+    plt.xticks(rotation=30)
+    plt.grid()
 
-out_path = Path(out_dir) / "arcsong_confusion_spherical.png"
-plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
+    out_path = Path(out_dir) / "arcsong_confusion_spherical.png"
+    plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
+    
+    return
 
+
+if __name__=='__main__':
+    fire.Fire(main)
 
