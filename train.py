@@ -76,7 +76,7 @@ def main(network_config=None, dataset_config=None, from_scratch=True, debug=True
     
     else:
         # Manual loop
-        for epoch in range(1, config['epochs']+1  ):
+        for epoch in range(1, config['epochs']+1):
             print(f"====== Begin epoch {epoch} / {config['epochs']} ======")
             
             for step, (inputs, labels) in enumerate(train_dataset):
@@ -85,7 +85,7 @@ def main(network_config=None, dataset_config=None, from_scratch=True, debug=True
                     loss = loss_fn(labels, logist)
                 
                 #TODO delete this debug
-                if step%100==0:
+                if step%5==0:
                     print(f"Step: {step}, loss: {loss}")  
                 
                 grads = tape.gradient(loss, model.trainable_variables)
