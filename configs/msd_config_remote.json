@@ -1,7 +1,7 @@
 {
     "input_size": 59049,
     "num_classes": 100,
-    "buffer_size": 1000,
+    "buffer_size": 100,
     "order_by_count": 1,
     "local": 0,
     "train_size":0.9
