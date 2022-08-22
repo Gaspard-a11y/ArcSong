@@ -86,7 +86,7 @@ def main(network_config=None, dataset_config=None, from_scratch=True, debug=True
                 
                 #TODO delete this debug
                 if step%5==0:
-                    print(f"Step: {step}, loss: {loss}")  
+                    print(f"Epoch: {epoch}, step: {step}, loss: {loss}")  
                 
                 grads = tape.gradient(loss, model.trainable_variables)
                 optimizer.apply_gradients(zip(grads, model.trainable_variables))
