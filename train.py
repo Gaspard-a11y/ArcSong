@@ -28,7 +28,7 @@ def main(network_config=None, dataset_config=None, from_scratch=True, debug=Fals
     assert config["input_size"] == dataset_config["input_size"], "Make sure input_size matches between configs"
     assert config["num_classes"] == dataset_config["num_classes"], "Make sure num_classes matches between configs"
 
-    ### Load model
+    ### Load full model
     model = ArcModel(config=config, training=True)
     model.summary(line_length=80)
 
@@ -55,7 +55,6 @@ def main(network_config=None, dataset_config=None, from_scratch=True, debug=Fals
     train_dataset = train_dataset.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
 
     ### Train
-
     learning_rate = tf.constant(config['learning_rate'])
     optimizer = Adam(learning_rate=learning_rate)
     loss_fn = SoftmaxLoss()

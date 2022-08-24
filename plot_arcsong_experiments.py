@@ -9,7 +9,7 @@ from tensorflow.keras import Model
 import fire
 
 from modules.math import euclidean_distance, spherical_distance
-from modules.dataset import get_MSD_test_dataset, get_MSD_train_dataset
+from modules.dataset import get_MSD_train_dataset
 from modules.models import ArcModel
 from modules.utils import load_json
 
@@ -31,7 +31,7 @@ def get_confusion_matrix(y_pred, y_test, num_classes):
     return C
 
 
-def main(out_dir="media", network_config = "configs/test_msd.json", dataset_config = "configs/msd_config_local.json"):
+def main(out_dir="media", network_config = "configs/test_msd.json", dataset_config = "configs/msd_10_config_local.json"):
     ### Load config
     config = load_json(network_config)
     dataset_config = load_json(dataset_config)
