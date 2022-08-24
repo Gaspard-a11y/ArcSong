@@ -50,8 +50,6 @@ def main(out_dir="media", network_config = "configs/test_msd.json", dataset_conf
     # x_test = np.random.normal(0,1, (15, 59049))
     # y_test = np.random.randint(7,10, (15))+1
 
-    # Temporary fix
-    config["num_classes"] = 10
     labels = artist_names[:config["num_classes"]]
 
     ### Classical supervised classification
