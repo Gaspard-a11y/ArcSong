@@ -67,6 +67,9 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     previous_weights = tf.train.latest_checkpoint(ckpt_path)
     model.load_weights(previous_weights)
 
+    # Graph mode
+    model = tf.function(model)
+
     # Compute y_pred
     print("Computing predictions...")
     unscaled_logits = model((x_test, y_test))
@@ -99,10 +102,13 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     ckpt_path = Path('checkpoints/') / config['ckpt_name']
     previous_weights = tf.train.latest_checkpoint(ckpt_path)
     model.load_weights(previous_weights)
-    embds = model(x_test).numpy()
+
+    # Graph mode
+    model = tf.function(model)
 
     # Compute y_pred
     print("Computing predictions...")
+    embds = model(x_test).numpy()
     test_set_length = len(y_test)
     num_classes = config["num_classes"]
 

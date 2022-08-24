@@ -4,6 +4,7 @@ def SoftmaxLoss():
     """
     Returns callable loss function softmax_loss.
     """
+    @tf.function
     def softmax_loss(y_true, y_pred):
         """
         Compute soft_max loss of logit y_pred against label y_true.
