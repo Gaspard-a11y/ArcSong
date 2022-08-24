@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import fire
@@ -38,6 +39,10 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     
     # Define output dir
     out_dir = Path(out_dir) / config["ckpt_name"]
+
+    # Make directory is not existing
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
 
     # Sanity check
     assert config["num_classes"] == dataset_config["num_classes"]
