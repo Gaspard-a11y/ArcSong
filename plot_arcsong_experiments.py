@@ -72,6 +72,10 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     previous_weights = tf.train.latest_checkpoint(ckpt_path)
     model.load_weights(previous_weights)
 
+    # Get class vectors for later
+    fc_matrix = model.layers[-1].weights[0]
+    class_vectors = fc_matrix.numpy().transpose()
+
     # Graph mode
     model = tf.function(model)
 
@@ -96,10 +100,6 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
     ### Classification using latent distances
-
-    # Get class vectors
-    fc_matrix = model.layers[-1].weights[0]
-    class_vectors = fc_matrix.numpy().transpose()
 
     # Load model
     print("Loading partial model...")
