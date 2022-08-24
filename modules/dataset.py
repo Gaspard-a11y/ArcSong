@@ -225,7 +225,7 @@ def get_MSD_train_dataset(config=None):
     return dataset
 
 
-def get_MSD_test_dataset(config=None, full_model=False, extra_classes=0):
+def get_MSD_test_dataset(config=None, extra_classes=0):
     """
     Build an MSD dataset for training ArcSong. 
     Complete with data augmentation.
@@ -240,7 +240,6 @@ def get_MSD_test_dataset(config=None, full_model=False, extra_classes=0):
     if config is not None:
         input_size = config['input_size']
         num_classes = config['num_classes']+extra_classes
-        buffer_size = config['buffer_size']
         order_by_count = config['order_by_count']
         local = config['local']
         train_size = config["train_size"]
@@ -256,7 +255,7 @@ def get_MSD_test_dataset(config=None, full_model=False, extra_classes=0):
     artistName_to_artistNumber_table = build_lookup_table_from_dict(artistName_to_artistNumber, "artistName_to_artistNumber")
 
     # Process dataset
-    _, dataset = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
+    dataset, _ = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
     dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table))
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
@@ -264,9 +263,6 @@ def get_MSD_test_dataset(config=None, full_model=False, extra_classes=0):
         dataset = dataset.map(random_crop(size=input_size))
 
     # TODO else: order by discography length?
-
-    if full_model:
-        dataset = dataset.map(setup_dataset_for_training)
 
     return dataset
 
