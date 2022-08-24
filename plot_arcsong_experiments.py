@@ -31,10 +31,12 @@ def get_confusion_matrix(y_pred, y_test, num_classes):
 
 
 def main(out_dir="media", network_config = None, dataset_config = None):
-
     ### Load config
     config = load_json(network_config)
     dataset_config = load_json(dataset_config)
+    
+    # Define output dir
+    out_dir = Path(out_dir) / config["ckpt_name"]
 
     # Sanity check
     assert config["num_classes"] == dataset_config["num_classes"]
