@@ -83,7 +83,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     print("Computing predictions...")
     unscaled_logits = model((x_test, y_test))
     logits = sp.special.softmax(unscaled_logits, axis=1)
-    y_pred = np.argmax(logits, axis=1)+1
+    y_pred = np.argmax(logits, axis=1)
 
     # Plot and save confusion matrix
     print("Saving confusion matrix...")
