@@ -13,7 +13,7 @@ from modules.dataset import get_fashion_mnist_train_dataset, get_MSD_train_datas
 from modules.losses import SoftmaxLoss
 
 
-def main(network_config=None, dataset_config=None, from_scratch=True, debug=False):
+def main(network_config=None, dataset_config=None, from_scratch=1, debug=0):
     # Parse inputs
     from_scratch = (from_scratch==1)
     debug = (debug==1)
