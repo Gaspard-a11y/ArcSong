@@ -225,7 +225,7 @@ def get_MSD_train_dataset(config=None):
     return dataset
 
 
-def get_MSD_test_dataset(config=None, extra_classes=5):
+def get_MSD_test_dataset(config=None, full_model=False, extra_classes=0):
     """
     Build an MSD dataset for training ArcSong. 
     Complete with data augmentation.
@@ -262,6 +262,11 @@ def get_MSD_test_dataset(config=None, extra_classes=5):
     
     if order_by_count:
         dataset = dataset.map(random_crop(size=input_size))
+
+    # TODO else: order by discography length?
+
+    if full_model:
+        dataset = dataset.map(setup_dataset_for_training)
 
     return dataset
 
