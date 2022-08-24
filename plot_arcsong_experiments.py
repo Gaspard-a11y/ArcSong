@@ -31,6 +31,7 @@ def get_confusion_matrix(y_pred, y_test, num_classes):
 
 
 def main(out_dir="media", network_config = None, dataset_config = None):
+    print("Loading config...")
     ### Load config
     config = load_json(network_config)
     dataset_config = load_json(dataset_config)
@@ -48,7 +49,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
         artist_names = load_json("data_tfrecord_x_echonest/artist_list_by_length.json") 
 
     ### Load test dataset
-
+    print("Loading test data...")
     x_test, y_test = get_MSD_test_data(dataset_config)
     
     # Dummy dataset with 15 examples
@@ -60,17 +61,20 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     ### Classical supervised classification
 
     # Load model
+    print("Loading full model...")
     model = ArcModel(config=config, training=True)
     ckpt_path = Path('checkpoints/') / config['ckpt_name']
     previous_weights = tf.train.latest_checkpoint(ckpt_path)
     model.load_weights(previous_weights)
 
     # Compute y_pred
+    print("Computing predictions...")
     unscaled_logits = model((x_test, y_test))
     logits = sp.special.softmax(unscaled_logits, axis=1)
     y_pred = np.argmax(logits, axis=1)+1
 
     # Plot and save confusion matrix
+    print("Saving confusion matrix...")
     confusion_matrix = get_confusion_matrix(y_pred, y_test, num_classes=config["num_classes"])
     
     plt.figure(figsize=(16,14))
@@ -90,6 +94,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     class_vectors = fc_matrix.numpy().transpose()
 
     # Load model
+    print("Loading partial model...")
     model = ArcModel(config=config, training=False)
     ckpt_path = Path('checkpoints/') / config['ckpt_name']
     previous_weights = tf.train.latest_checkpoint(ckpt_path)
@@ -97,6 +102,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     embds = model(x_test).numpy()
 
     # Compute y_pred
+    print("Computing predictions...")
     test_set_length = len(y_test)
     num_classes = config["num_classes"]
 
@@ -112,6 +118,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     y_pred_spherical = np.argmax(spherical_distance_matrix, axis=1)
 
     # Plot and save confusion matrices
+    print("Saving confusion matrices...")
     confusion_matrix_euclidean = get_confusion_matrix(y_pred_euclidean, y_test, num_classes=config["num_classes"])
     confusion_matrix_spherical = get_confusion_matrix(y_pred_spherical, y_test, num_classes=config["num_classes"])
 
