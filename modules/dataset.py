@@ -1,4 +1,5 @@
 import os
+import random
 from pathlib import Path
 
 import tensorflow as tf
@@ -108,7 +109,7 @@ def build_lookup_table_from_list(li, name):
     return table
 
 
-def _get_MSD_raw_split_dataset(local=True, train_size=0.9):
+def _get_MSD_raw_split_dataset(local=True, train_size=0.9, seed=1234):
     """
     Process the folder containing the tfrecord files,
     Return a tf.data.TFRecordDataset object.
@@ -139,6 +140,8 @@ def _get_MSD_raw_split_dataset(local=True, train_size=0.9):
         parsed_features['tags'] = tf.sparse.to_dense(parsed_features['tags'])
         return parsed_features
 
+    # Random shuffle
+    random.Random(seed).shuffle(filenames)
 
     stop = round(train_size*len(filenames))
 
