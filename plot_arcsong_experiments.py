@@ -9,7 +9,7 @@ from tensorflow.keras import Model
 import fire
 
 from modules.math import euclidean_distance, spherical_distance
-from modules.dataset import get_MSD_train_dataset
+from modules.dataset import get_MSD_test_data
 from modules.models import ArcModel
 from modules.utils import load_json
 
@@ -44,11 +44,11 @@ def main(out_dir="media", network_config = "configs/test_msd.json", dataset_conf
 
     ### Load test dataset
 
-    # Replace with test set eventually
-    # dataset = get_MSD_test_dataset(dataset_config)
+    x_test, y_test = get_MSD_test_data(dataset_config)
+    
     # Dummy dataset with 15 examples
-    x_test = np.random.normal(0,1, (15, 59049))
-    y_test = np.random.randint(7,10, (15))+1
+    # x_test = np.random.normal(0,1, (15, 59049))
+    # y_test = np.random.randint(7,10, (15))+1
 
     # Temporary fix
     config["num_classes"] = 10

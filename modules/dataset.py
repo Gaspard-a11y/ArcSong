@@ -225,7 +225,14 @@ def get_MSD_train_dataset(config=None):
     return dataset
 
 
-def get_MSD_test_dataset(config=None, extra_classes=0):
+def get_audio(audio, label):
+    return audio
+
+def get_label(audio, label):
+    return label
+
+
+def get_MSD_test_data(config=None, extra_classes=0):
     """
     Build an MSD dataset for training ArcSong. 
     Complete with data augmentation.
@@ -261,8 +268,13 @@ def get_MSD_test_dataset(config=None, extra_classes=0):
     
     if order_by_count:
         dataset = dataset.map(random_crop(size=input_size))
-
     # TODO else: order by discography length?
 
-    return dataset
+    audio_dataset = dataset.map(get_audio)
+    label_dataset = dataset.map(get_label)
+
+    x_test = np.array(list(audio_dataset.as_numpy_iterator()))
+    y_test = np.array(list(label_dataset.as_numpy_iterator()))
+
+    return x_test, y_test
 
