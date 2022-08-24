@@ -1,17 +1,16 @@
 from pathlib import Path
 
+import fire
 import numpy as np
-import tensorflow as tf
 import scipy as sp
 import seaborn as sns
+import tensorflow as tf
 import matplotlib.pyplot as plt
-from tensorflow.keras import Model
-import fire
 
-from modules.math import euclidean_distance, spherical_distance
-from modules.dataset import get_MSD_test_data
-from modules.models import ArcModel
 from modules.utils import load_json
+from modules.models import ArcModel
+from modules.dataset import get_MSD_test_data
+from modules.math import euclidean_distance, spherical_distance
 
 
 def get_confusion_matrix(y_pred, y_test, num_classes):
@@ -31,11 +30,15 @@ def get_confusion_matrix(y_pred, y_test, num_classes):
     return C
 
 
-def main(out_dir="media", network_config = "configs/test_msd.json", dataset_config = "configs/msd_10_config_local.json"):
+def main(out_dir="media", network_config = None, dataset_config = None):
+
     ### Load config
     config = load_json(network_config)
     dataset_config = load_json(dataset_config)
 
+    # Sanity check
+    assert config["num_classes"] == dataset_config["num_classes"]
+    
     # Get artist names
     if dataset_config["order_by_count"]==1:
         artist_names = load_json("data_tfrecord_x_echonest/artist_list_by_count.json") 
@@ -92,9 +95,8 @@ def main(out_dir="media", network_config = "configs/test_msd.json", dataset_conf
     embds = model(x_test).numpy()
 
     # Compute y_pred
-    # TODO Cleanup
-    test_set_length = embds.shape[0]
-    num_classes = class_vectors.shape[0]
+    test_set_length = len(y_test)
+    num_classes = config["num_classes"]
 
     euclidean_distance_matrix = np.zeros((test_set_length, num_classes)) 
     spherical_distance_matrix = np.zeros((test_set_length, num_classes)) 

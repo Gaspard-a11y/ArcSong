@@ -262,7 +262,7 @@ def get_MSD_test_data(config=None, extra_classes=0):
     artistName_to_artistNumber_table = build_lookup_table_from_dict(artistName_to_artistNumber, "artistName_to_artistNumber")
 
     # Process dataset
-    dataset, _ = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
+    _, dataset = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
     dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table))
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
