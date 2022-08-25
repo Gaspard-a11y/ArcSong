@@ -68,7 +68,7 @@ def _get_MSD_raw_dataset(local=True):
     filenames = [waveforms_path / f for f in os.listdir(waveforms_path) if f.endswith('tfrecord')]
     dataset = tf.data.TFRecordDataset(filenames)
     
-    dataset = dataset.map(_waveform_parse_function)
+    dataset = dataset.map(_waveform_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     
     return dataset
 
@@ -148,8 +148,8 @@ def _get_MSD_raw_split_dataset(local=True, train_size=0.9, seed=1234):
     train_dataset = tf.data.TFRecordDataset(filenames[:stop])
     test_dataset = tf.data.TFRecordDataset(filenames[stop:])
 
-    train_dataset = train_dataset.map(_waveform_parse_function)
-    test_dataset = test_dataset.map(_waveform_parse_function)
+    train_dataset = train_dataset.map(_waveform_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    test_dataset = test_dataset.map(_waveform_parse_function, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     return train_dataset, test_dataset
 
@@ -211,16 +211,19 @@ def get_MSD_train_dataset(config=None):
 
     # Process dataset
     dataset, _ = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
-    dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table))
+    dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table), 
+                        num_parallel_calls=tf.data.experimental.AUTOTUNE)
     dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
     if order_by_count:
-        dataset = dataset.map(random_crop(size=input_size))
+        dataset = dataset.map(random_crop(size=input_size), 
+                            num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     # else:
     # TODO : data augmentation
 
-    dataset = dataset.map(setup_dataset_for_training)
+    dataset = dataset.map(setup_dataset_for_training, 
+                        num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     if buffer_size is not None:
         dataset = dataset.shuffle(buffer_size=buffer_size)
@@ -266,15 +269,18 @@ def get_MSD_test_data(config=None, extra_classes=0):
 
     # Process dataset
     _, dataset = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
-    dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table))
-    dataset = dataset.filter(filter_classes(num_classes=num_classes))
+    dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table),
+                        num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.filter(filter_classes(num_classes=num_classes),
+                            num_parallel_calls=tf.data.experimental.AUTOTUNE)
     
     if order_by_count:
-        dataset = dataset.map(random_crop(size=input_size))
+        dataset = dataset.map(random_crop(size=input_size), 
+                            num_parallel_calls=tf.data.experimental.AUTOTUNE)
     # TODO else: order by discography length?
 
-    audio_dataset = dataset.map(get_audio)
-    label_dataset = dataset.map(get_label)
+    audio_dataset = dataset.map(get_audio, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    label_dataset = dataset.map(get_label, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
     x_test = np.array(list(audio_dataset.as_numpy_iterator()))
     y_test = np.array(list(label_dataset.as_numpy_iterator()))
