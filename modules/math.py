@@ -15,5 +15,5 @@ def spherical_distance(x,y, epsilon=1e-5):
     norm_x = np.sqrt(np.sum(np.power(x,2)))
     norm_y = np.sqrt(np.sum(np.power(y,2)))
     xx, yy = x/(norm_x+epsilon), y/(norm_y+epsilon)
-    return 2*np.pi*np.arccos(np.dot(xx,yy))
+    return np.arccos(np.dot(xx,yy))
 

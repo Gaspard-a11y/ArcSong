@@ -23,8 +23,7 @@ def get_confusion_matrix(y_pred, y_test, num_classes):
     # Sanity check
     y_pred, y_test = np.array(y_pred), np.array(y_test)
     
-    n = len(y_pred) # = len(y_test)
-    C = np.zeros((num_classes,num_classes))
+    C = np.zeros((num_classes, num_classes))
     for i in range(num_classes):
         for j in range(num_classes):
             C[i][j] = np.sum(np.logical_and(y_test==i, y_pred==j))
