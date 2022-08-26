@@ -1,5 +1,5 @@
 {
-    "ckpt_name": "Arcsong_10",
+    "ckpt_name": "Arcsong_100",
     "input_size": 59049,
     "data_dim": 1,
     "channels": 1,
