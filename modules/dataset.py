@@ -271,8 +271,7 @@ def get_MSD_test_data(config=None, extra_classes=0):
     _, dataset = _get_MSD_raw_split_dataset(local=(local==1), train_size=train_size)
     dataset = dataset.map(extract_audio_and_label(trackID_to_artistName_table, artistName_to_artistNumber_table),
                         num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    dataset = dataset.filter(filter_classes(num_classes=num_classes),
-                            num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.filter(filter_classes(num_classes=num_classes))
     
     if order_by_count:
         dataset = dataset.map(random_crop(size=input_size), 
