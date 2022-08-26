@@ -157,6 +157,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
     
     ### 2-PCA of ID vectors
+    print("Saving 2-PCA of ID vectors...")
 
     def normalise(vectors):
         _, dim = vectors.shape
@@ -182,7 +183,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
     
     ### Binary classification
-
+    
     binary_y_test_matrix = np.array(
         [[y_test[i]==y_test[j] for j in range(test_set_length)] for i in range(test_set_length)],
         dtype=np.int32)
@@ -210,6 +211,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
         return [fpr, tpr, f1]
 
     ## Euclidean
+    print("Saving euclidean analysis...")
 
     max_distance_euclidean = np.amax(euclidean_embds_distance_matrix)
     threshold_range_euclidean = np.linspace(start=0., stop=max_distance_euclidean, num=100)
@@ -242,6 +244,7 @@ def main(out_dir="media", network_config = None, dataset_config = None):
     plt.savefig(out_path, bbox_inches='tight', pad_inches=0)
 
     ## Spherical
+    print("Saving spherical analysis...")
 
     max_distance_spherical = np.amax(spherical_embds_distance_matrix)
     threshold_range_spherical = np.linspace(start=0., stop=max_distance_spherical, num=100)
