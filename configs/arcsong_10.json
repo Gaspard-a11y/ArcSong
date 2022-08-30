@@ -8,7 +8,7 @@
     "embd_shape": 256,
     "margin":0.5,
     "logist_scale":64,
-    "epochs": 10,
+    "epochs": 20,
     "learning_rate": 5e-3,
     "batch_size":32
 }
